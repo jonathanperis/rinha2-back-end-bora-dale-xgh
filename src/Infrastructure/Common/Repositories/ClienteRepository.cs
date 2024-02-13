@@ -2,21 +2,14 @@
 
 public sealed class ClienteRepository(ApplicationDbContext context) : IClienteRepository
 {
-    private static readonly Func<ApplicationDbContext, int, Task<ClienteDto>> GetCliente
-    = EF.CompileAsyncQuery(
+    private static readonly Func<ApplicationDbContext, int, Task<Cliente?>> GetCliente
+        = EF.CompileAsyncQuery(
             (ApplicationDbContext context, int id) => context.Clientes
                 .AsNoTracking()
-                .Where(x => x.Id == id)
-                .Select(y => new ClienteDto
-                {
-                    Id = y.Id,
-                    Limite = y.Limite,
-                    SaldoInicial = y.SaldoInicial,
-                })
-                .SingleOrDefault());
+                .SingleOrDefault(x => x.Id == id));
 
-    private static readonly Func<ApplicationDbContext, int, Task<SaldoDto>> GetSaldoCliente
-    = EF.CompileAsyncQuery(
+    private static readonly Func<ApplicationDbContext, int, Task<SaldoDto?>> GetSaldoCliente
+        = EF.CompileAsyncQuery(
             (ApplicationDbContext context, int id) => context.Clientes
                 .Where(x => x.Id == id)
                 .Select(x => new SaldoDto
@@ -24,14 +17,14 @@ public sealed class ClienteRepository(ApplicationDbContext context) : IClienteRe
                     Total = x.SaldoInicial,
                     Limite = x.Limite
                 })
-            .First());
+                .FirstOrDefault());
 
-    public async Task<ClienteDto> GetClienteAsync(int id)
+    public async Task<Cliente?> GetClienteAsync(int id)
     {
         return await GetCliente(context, id);
     }
 
-    public async Task<SaldoDto> GetSaldoClienteAsync(int id)
+    public async Task<SaldoDto?> GetSaldoClienteAsync(int id)
     {
         return await GetSaldoCliente(context, id);
     }

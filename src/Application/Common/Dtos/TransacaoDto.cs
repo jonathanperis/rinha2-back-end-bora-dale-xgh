@@ -1,6 +1,6 @@
 ﻿namespace Application.Common.Dtos;
 
-public record struct TransacaoDto
+public sealed record TransacaoDto
 {
     public int Valor { get; set; }
     public char Tipo { get; set; }

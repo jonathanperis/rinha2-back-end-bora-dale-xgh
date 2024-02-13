@@ -2,7 +2,7 @@
 
 public interface IClienteRepository
 {
-    Task<ClienteDto> GetClienteAsync(int id);
+    Task<Cliente?> GetClienteAsync(int id);
 
-    Task<SaldoDto> GetSaldoClienteAsync(int id);
+    Task<SaldoDto?> GetSaldoClienteAsync(int id);
 }

@@ -1,6 +1,6 @@
 ﻿namespace Application.Common.Dtos;
 
-public record struct ClienteDto
+public sealed record ClienteDto
 {
     public int Id { get; set; }
     public int Limite { get; set; }

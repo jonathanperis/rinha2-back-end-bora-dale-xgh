@@ -5,6 +5,7 @@ global using Application.Common.Repositories;
 global using Domain.Entities;
 global using Infrastructure.Common.Context;
 global using Infrastructure.Common.Mappings;
+global using Infrastructure.Common.Repositories;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.Extensions.Configuration;

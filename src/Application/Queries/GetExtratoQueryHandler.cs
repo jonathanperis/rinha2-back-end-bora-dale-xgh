@@ -1,23 +1,24 @@
 ﻿namespace Application.Queries;
 
-public sealed class GetExtratoQueryHandler(IApplicationDbContext context, IClienteRepository clienteRepository) : IRequestHandler<GetExtratoQuery, GetExtratoQueryViewModel>
+public sealed class GetExtratoQueryHandler(IClienteRepository clienteRepository, ItransacaoRepository transacaoRepository) : IRequestHandler<GetExtratoQuery, GetExtratoQueryViewModel>
 {
-    private readonly IApplicationDbContext _context = context;
     private readonly IClienteRepository _clienteRepository = clienteRepository;
+    private readonly ItransacaoRepository _transacaoRepository = transacaoRepository;
 
     public async ValueTask<GetExtratoQueryViewModel> Handle(GetExtratoQuery request, CancellationToken cancellationToken)
     {
-        //var recurso = await _context.Recursos
-        //    .AsNoTracking()
-        //    .Where(x => x.Id == request.Id && x.Ativo)
-        //    .Select(x => x.MapToDto())
-        //    .FirstOrDefaultAsync(cancellationToken);
+        var saldo = await _clienteRepository.GetSaldoClienteAsync(request.Id);
 
-        //if (recurso is null)
-        //{
-        //    return new GetExtratoQueryViewModel { OperationResult = OperationResult.NotFound };
-        //}
+        if (saldo is null)
+            return new GetExtratoQueryViewModel(OperationResult.NotFound);
 
-        return new GetExtratoQueryViewModel { OperationResult = OperationResult.Success };
+        var ultimasTransacoes = new List<TransacaoDto>(10);
+
+        await foreach (var transacao in _transacaoRepository.ListUltimasTransacoes(request.Id))
+        {
+            ultimasTransacoes.Add(transacao);
+        }
+
+        return new GetExtratoQueryViewModel(OperationResult.Success, saldo, ultimasTransacoes);
     }
 }

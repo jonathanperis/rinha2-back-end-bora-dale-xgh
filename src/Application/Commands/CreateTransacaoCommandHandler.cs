@@ -9,8 +9,11 @@ public sealed class CreateTransacaoCommandHandler(IApplicationDbContext context,
     {
         var valorTransacao = request.Transacao.Tipo == 'c' ? request.Transacao.Valor : request.Transacao.Valor * -1;
         var cliente = await _clienteRepository.GetClienteAsync(request.Id);
-        
-        using var dbTransaction = await _context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+
+        if (cliente is null)
+            return new CreateTransacaoCommandViewModel(OperationResult.NotFound);
+
+        using var dbTransaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
         _context.Transacoes.Add(new Transacao
         {
@@ -20,22 +23,34 @@ public sealed class CreateTransacaoCommandHandler(IApplicationDbContext context,
             ClienteId = request.Id
         });
 
-        var result = await _context.Clientes
-            .Where(x => x.Id == request.Id)
-            .Where(x => x.SaldoInicial + valorTransacao >= x.Limite * -1 || valorTransacao > 0)
-            .ExecuteUpdateAsync(x =>
-                x.SetProperty(e => e.SaldoInicial, e => e.SaldoInicial + valorTransacao));
+        //var result = await _context.Clientes
+        //    .Where(x => x.Id == request.Id)
+        //    .Where(x => x.SaldoInicial + valorTransacao >= x.Limite * -1 || valorTransacao > 0)
+        //    .ExecuteUpdateAsync(x =>
+        //        x.SetProperty(e => e.SaldoInicial, e => e.SaldoInicial + valorTransacao));
 
         //if (result == 0)
         //{
         //    return UnprocessableEntity("Limite excedido");
         //}
 
-        await _context.SaveChangesAsync();
-        await dbTransaction.CommitAsync();
+        //--------------------------------------------------------------------------------------------------------
+
+        var result = await _context.Clientes
+                                    .Where(x => x.Id == request.Id)
+                                    .Where(x => x.SaldoInicial + valorTransacao >= x.Limite * -1 || valorTransacao > 0)
+                                    .FirstOrDefaultAsync(cancellationToken);
+
+        if (result != null)
+        {
+            result.SaldoInicial += valorTransacao;
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+        await dbTransaction.CommitAsync(cancellationToken);
 
         cliente = await _clienteRepository.GetClienteAsync(request.Id);
 
-        return new CreateTransacaoCommandViewModel(OperationResult.Success, cliente.SaldoInicial, cliente.Limite);
+        return new CreateTransacaoCommandViewModel(OperationResult.Success, cliente?.SaldoInicial, cliente?.Limite);
     }
 }
