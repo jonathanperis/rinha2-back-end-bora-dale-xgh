@@ -9,7 +9,7 @@ services:
     depends_on: 
       - db
     environment:
-      ConnectionStrings__AppDbContext: Host=db;Username=postgres;Password=postgres;Database=rinha
+      ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha
     deploy:
       resources:
         limits:
@@ -25,7 +25,7 @@ services:
     volumes:
       - "./diag:/diag"
     environment:
-      ConnectionStrings__AppDbContext: Host=db;Username=postgres;Password=postgres;Database=rinha
+      ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha
       # DOTNET_DiagnosticPorts: /diag/dotnet-monitor2.sock
 
   # monitor2:
