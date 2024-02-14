@@ -5,7 +5,9 @@ builder.Services.AddApplication();
 
 var app = builder.Build();
 
-app.MapGet("/extrato/{id:int}", async (int id, ISender sender, CancellationToken cancellationToken) =>
+app.MapGet("/", () => "Hello World!");
+
+app.MapGet("/clientes/{id:int}/extrato", async (int id, ISender sender, CancellationToken cancellationToken) =>
 {
     var result = await sender.Send(new GetExtratoQuery(id), cancellationToken);
 
@@ -17,7 +19,7 @@ app.MapGet("/extrato/{id:int}", async (int id, ISender sender, CancellationToken
     };
 });
 
-app.MapPost("/transacoes/{id:int}", async (int id, TransacaoRequestDto transacao, ISender sender, CancellationToken cancellationToken) =>
+app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoRequestDto transacao, ISender sender, CancellationToken cancellationToken) =>
 {
     var result = await sender.Send(new CreateTransacaoCommand(id, transacao), cancellationToken);
 

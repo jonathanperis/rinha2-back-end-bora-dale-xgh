@@ -15,12 +15,3 @@ GET {{HostAddress}}/clientes/1/extrato
 Accept: application/json
 
 ###
-
-POST {{HostAddress}}/clientes/1/transacoes
-Content-Type: application/json
-
-{
-  "valor": 1.2,
-  "tipo" : "c",
-  "descricao" : "descricao"
-}
