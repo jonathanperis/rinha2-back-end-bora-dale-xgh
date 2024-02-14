@@ -1,16 +1,26 @@
 @HostAddress = http://localhost:5147
 
-GET {{HostAddress}}/extrato/1
-# Accept: application/json
-
-###
-
-POST {{HostAddress}}/transacoes/1
-# Accept: application/json
+POST {{HostAddress}}/clientes/1/transacoes
 Content-Type: application/json
 
 {
-  
+  "valor": 1000,
+  "tipo" : "d",
+  "descricao" : "1"
 }
 
 ###
+
+GET {{HostAddress}}/clientes/1/extrato
+Accept: application/json
+
+###
+
+POST {{HostAddress}}/clientes/1/transacoes
+Content-Type: application/json
+
+{
+  "valor": 1.2,
+  "tipo" : "c",
+  "descricao" : "descricao"
+}
