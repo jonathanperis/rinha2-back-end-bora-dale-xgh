@@ -3,11 +3,13 @@ version: '3.9'
 services:
   webapi1: &webapi1
     hostname: webapi1
+    container_name: api-service-1
     build:
       context: .
       dockerfile: src/WebAPI/Dockerfile
     depends_on: 
       - db
+    restart: always      
     environment:
       ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha
     deploy:
@@ -19,14 +21,15 @@ services:
   webapi2:
     <<: *webapi1
     hostname: webapi2
-    depends_on:
-      - db
-      # - monitor2
-    volumes:
-      - "./diag:/diag"
-    environment:
-      ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha
-      # DOTNET_DiagnosticPorts: /diag/dotnet-monitor2.sock
+    container_name: api-service-2
+    # depends_on:
+    #   - db
+    #   - monitor2
+    # volumes:
+    #   - "./diag:/diag"
+    # environment:
+    #   ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha
+    #   DOTNET_DiagnosticPorts: /diag/dotnet-monitor2.sock
 
   # monitor2:
   #   image: mcr.microsoft.com/dotnet/monitor:8
@@ -51,6 +54,7 @@ services:
     volumes:
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: rinha
     # depends_on:

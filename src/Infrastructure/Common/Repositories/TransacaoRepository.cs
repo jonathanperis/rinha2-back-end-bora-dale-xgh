@@ -2,6 +2,11 @@
 
 public sealed class TransacaoRepository(ApplicationDbContext context) : ItransacaoRepository
 {
+    public IAsyncEnumerable<TransacaoDto> ListUltimasTransacoes(int id)
+    {
+        return GetUltimasTransacoes(context, id);
+    }
+
     private static readonly Func<ApplicationDbContext, int, IAsyncEnumerable<TransacaoDto>> GetUltimasTransacoes
     = EF.CompileAsyncQuery(
             (ApplicationDbContext context, int id) => context.Transacoes
@@ -14,10 +19,5 @@ public sealed class TransacaoRepository(ApplicationDbContext context) : Itransac
                     Tipo = x.Tipo,
                     Descricao = x.Descricao,
                     RealizadoEm = x.RealizadoEm
-                }));
-
-    public IAsyncEnumerable<TransacaoDto> ListUltimasTransacoes(int id)
-    {
-        return GetUltimasTransacoes(context, id);
-    }
+                }));    
 }

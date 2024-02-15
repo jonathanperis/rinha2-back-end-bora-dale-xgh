@@ -15,12 +15,6 @@ internal class ClienteMap : IEntityTypeConfiguration<Cliente>
             .IsRequired()
             .ValueGeneratedOnAdd();
 
-        builder.Property(c => c.Limite)
-            .IsRequired();
-
-        builder.Property(c => c.SaldoInicial)
-            .IsRequired();
-
         if (Clientes != null)
         {
             builder.HasData(Clientes);

@@ -33,6 +33,13 @@ public sealed class ApplicationDbContext(IConfiguration configuration) : DbConte
 
     private static void CreateSeedData()
     {
-
+        ClienteMap.Clientes = 
+        [
+            Cliente.Create(1, 100000, 0),
+            Cliente.Create(2, 80000, 0),
+            Cliente.Create(3, 1000000, 0),
+            Cliente.Create(4, 10000000, 0),
+            Cliente.Create(5, 500000, 0)
+        ];
     }
 }

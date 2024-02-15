@@ -15,21 +15,6 @@ internal class TransacaoMap : IEntityTypeConfiguration<Transacao>
             .IsRequired()
             .ValueGeneratedOnAdd();
 
-        builder.Property(c => c.Valor)
-            .IsRequired();
-
-        builder.Property(c => c.ClienteId)
-            .IsRequired();
-
-        builder.Property(c => c.Tipo)
-            .IsRequired();
-
-        builder.Property(c => c.Descricao)
-            .IsRequired();
-
-        builder.Property(c => c.RealizadoEm)
-            .IsRequired();
-
         if (Transacoes != null)
         {
             builder.HasData(Transacoes);

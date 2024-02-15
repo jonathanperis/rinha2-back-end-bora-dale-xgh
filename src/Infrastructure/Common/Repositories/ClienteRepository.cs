@@ -2,6 +2,16 @@
 
 public sealed class ClienteRepository(ApplicationDbContext context) : IClienteRepository
 {
+    public async Task<Cliente?> GetClienteAsync(int id)
+    {
+        return await GetCliente(context, id);
+    }
+
+    public async Task<SaldoDto?> GetSaldoClienteAsync(int id)
+    {
+        return await GetSaldoCliente(context, id);
+    }
+
     private static readonly Func<ApplicationDbContext, int, Task<Cliente?>> GetCliente
         = EF.CompileAsyncQuery(
             (ApplicationDbContext context, int id) => context.Clientes
@@ -17,15 +27,5 @@ public sealed class ClienteRepository(ApplicationDbContext context) : IClienteRe
                     Total = x.SaldoInicial,
                     Limite = x.Limite
                 })
-                .FirstOrDefault());
-
-    public async Task<Cliente?> GetClienteAsync(int id)
-    {
-        return await GetCliente(context, id);
-    }
-
-    public async Task<SaldoDto?> GetSaldoClienteAsync(int id)
-    {
-        return await GetSaldoCliente(context, id);
-    }
+                .FirstOrDefault());    
 }
