@@ -6,8 +6,5 @@ public static class DependencyInjection
     {
         services.AddScoped<ApplicationDbContext>();
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
-
-        services.AddScoped<IClienteRepository, ClienteRepository>();
-        services.AddScoped<ItransacaoRepository, TransacaoRepository>();
     }
 }

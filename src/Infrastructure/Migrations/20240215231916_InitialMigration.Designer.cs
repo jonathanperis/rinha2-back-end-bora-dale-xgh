@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240215214900_InitialMigration")]
+    [Migration("20240215231916_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -88,7 +88,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Descricao")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("RealizadoEm")

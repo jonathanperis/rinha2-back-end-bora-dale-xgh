@@ -6,6 +6,6 @@ public sealed record Transacao
     public int Valor { get; set; }
     public int ClienteId { get; set; }
     public char Tipo { get; set; }
-    public string Descricao { get; set; } = "";
+    public string? Descricao { get; set; } = string.Empty;
     public DateTime RealizadoEm { get; set; } = DateTime.UtcNow;
 }
