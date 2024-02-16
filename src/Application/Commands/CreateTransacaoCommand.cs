@@ -1,3 +1,3 @@
 ﻿namespace Application.Commands;
 
-public sealed record CreateTransacaoCommand(int Id, TransacaoRequestDto Transacao) : IRequest<CreateTransacaoCommandViewModel>;
+public sealed record CreateTransacaoCommand(int Id, TransacaoRequest Transacao) : IRequest<CreateTransacaoCommandViewModel>;

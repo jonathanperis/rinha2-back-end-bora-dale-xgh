@@ -7,13 +7,12 @@ public sealed class CreateTransacaoCommandHandler(IApplicationDbContext context)
     public async ValueTask<CreateTransacaoCommandViewModel> Handle(CreateTransacaoCommand request, CancellationToken cancellationToken)
     {
         var valorTransacao = request.Transacao.Tipo == 'c' ? request.Transacao.Valor : request.Transacao.Valor * -1;
+        
         // var cliente = await _clienteRepository.GetClienteAsync(request.Id);
         var cliente = await _context.Clientes.FindAsync([request.Id], cancellationToken: cancellationToken);
 
         if (cliente is null)
             return new CreateTransacaoCommandViewModel(OperationResult.NotFound);
-
-        //using var dbTransaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
         cliente.Transacoes.Add(new Transacao
         {
@@ -55,7 +54,6 @@ public sealed class CreateTransacaoCommandHandler(IApplicationDbContext context)
         }
 
         await _context.SaveChangesAsync(cancellationToken);
-        //await dbTransaction.CommitAsync(cancellationToken);
 
         cliente = await _context.Clientes.FindAsync([request.Id], cancellationToken: cancellationToken);
 

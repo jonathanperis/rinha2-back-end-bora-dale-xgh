@@ -1,11 +1,11 @@
 ﻿global using Application.Common.Context;
 global using Application.Common.Dtos;
 global using Application.Common.Models;
+global using Application.Common.Requests;
 global using Domain.Entities;
 global using FluentValidation;
 global using Mediator;
 global using Microsoft.EntityFrameworkCore;
-global using Microsoft.EntityFrameworkCore.Infrastructure;
 global using Microsoft.Extensions.DependencyInjection;
 global using System.ComponentModel.DataAnnotations;
 global using System.Data;

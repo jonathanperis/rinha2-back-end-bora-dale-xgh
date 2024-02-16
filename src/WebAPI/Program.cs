@@ -19,7 +19,7 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, ISender sender, Cancella
     };
 });
 
-app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoRequestDto transacao, ISender sender, CancellationToken cancellationToken) =>
+app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoRequest transacao, ISender sender, CancellationToken cancellationToken) =>
 {
     var result = await sender.Send(new CreateTransacaoCommand(id, transacao), cancellationToken);
 
