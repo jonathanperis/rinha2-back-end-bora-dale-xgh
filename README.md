@@ -28,4 +28,4 @@ docker-compose up -d grafana
 
 2 dashboards foram adicionados criados para acompanhar as métricas da api e do banco de dados. Para acessar o grafana, acesse [http://localhost:3000](http://localhost:3000) com usuário `admin` e senha `admin`.
 
-##### ** Baseado no trabalho do colega da rinha @rafaelpadovezi (https://github.com/rafaelpadovezi/rinha-2) **
+#### ** Baseado no trabalho do colega da rinha @rafaelpadovezi (https://github.com/rafaelpadovezi/rinha-2) **
