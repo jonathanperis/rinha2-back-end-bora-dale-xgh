@@ -1,4 +1,4 @@
-@HostAddress = http://localhost:5147
+@HostAddress = http://localhost:9999
 
 POST {{HostAddress}}/clientes/1/transacoes
 Content-Type: application/json

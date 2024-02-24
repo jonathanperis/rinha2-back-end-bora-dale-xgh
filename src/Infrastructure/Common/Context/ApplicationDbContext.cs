@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Common.Context;
 
-public sealed class ApplicationDbContext(IConfiguration configuration) : DbContext, IApplicationDbContext
+public sealed class ApplicationDbContext(IConfiguration configuration) : DbContext
 {
     private readonly IConfiguration? _configuration = configuration;
 
@@ -22,7 +22,8 @@ public sealed class ApplicationDbContext(IConfiguration configuration) : DbConte
         if (!optionsBuilder.IsConfigured)
         {
             optionsBuilder
-                .UseNpgsql(_configuration?.GetConnectionString("DefaultConnection"));
+                .UseNpgsql(_configuration?.GetConnectionString("DefaultConnection"))
+                .EnableDetailedErrors();
         }
     }
 

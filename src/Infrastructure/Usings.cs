@@ -1,9 +1,11 @@
-﻿global using Application.Common.Context;
+﻿global using Application.Common.Factory;
 global using Application.Common.Models;
 global using Domain.Entities;
 global using Infrastructure.Common.Context;
+global using Infrastructure.Common.Factory;
 global using Infrastructure.Common.Mappings;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
+global using Npgsql;

@@ -1,61 +1,56 @@
 ﻿namespace Application.Commands;
 
-public sealed class CreateTransacaoCommandHandler(IApplicationDbContext context) : IRequestHandler<CreateTransacaoCommand, CreateTransacaoCommandViewModel>
+public sealed class CreateTransacaoCommandHandler(IConnectionFactory connectionFactory) : IRequestHandler<CreateTransacaoCommand, CreateTransacaoCommandViewModel>
 {
-    private readonly IApplicationDbContext _context = context;
+    private readonly IConnectionFactory _connectionFactory = connectionFactory;
+
+    private const string sql1 = @"
+                                SELECT ""Id"", ""Limite"", ""SaldoInicial""
+                                FROM public.""Clientes""
+                                WHERE ""Id"" = @Id;
+                                ";
+
+    private const string sql2 = @"
+                                INSERT INTO public.""Transacoes"" (""Valor"", ""Tipo"", ""Descricao"", ""ClienteId"", ""RealizadoEm"")
+                                VALUES (@Valor, @Tipo, @Descricao, @ClienteId, @RealizadoEm);
+                                ";
+
+    private const string sql3 = @"
+                                UPDATE public.""Clientes""
+                                SET ""SaldoInicial"" = ""SaldoInicial"" + @valorTransacao
+                                WHERE ""Id"" = @Id
+                                AND (""SaldoInicial"" + @valorTransacao >= ""Limite"" * -1 OR @valorTransacao > 0);
+                                ";
 
     public async ValueTask<CreateTransacaoCommandViewModel> Handle(CreateTransacaoCommand request, CancellationToken cancellationToken)
     {
-        var valorTransacao = request.Transacao.Tipo == 'c' ? request.Transacao.Valor : request.Transacao.Valor * -1;
-        
-        // var cliente = await _clienteRepository.GetClienteAsync(request.Id);
-        var cliente = await _context.Clientes.FindAsync([request.Id], cancellationToken: cancellationToken);
+        await using var connection = _connectionFactory.CreateConnection();
+        connection.Open();
+
+        var cliente = connection.QueryFirstOrDefault<Cliente>(sql1, new { request.Id });
 
         if (cliente is null)
             return new CreateTransacaoCommandViewModel(OperationResult.NotFound);
 
-        cliente.Transacoes.Add(new Transacao
+        connection.Execute(sql2, new
         {
-            Valor = request.Transacao.Valor,
-            Tipo = request.Transacao.Tipo,
-            Descricao = request.Transacao.Descricao,
-            ClienteId = request.Id
+            request.Transacao.Valor,
+            request.Transacao.Tipo,
+            request.Transacao.Descricao,
+            ClienteId = request.Id,
+            RealizadoEm = DateTime.UtcNow
         });
 
-        // _context.Transacoes.Add(new Transacao
-        // {
-        //     Valor = request.Transacao.Valor,
-        //     Tipo = request.Transacao.Tipo,
-        //     Descricao = request.Transacao.Descricao,
-        //     ClienteId = request.Id
-        // });
+        var valorTransacao = request.Transacao.Tipo == 'c' ? request.Transacao.Valor : request.Transacao.Valor * -1;
 
-        //var result = await _context.Clientes
-        //    .Where(x => x.Id == request.Id)
-        //    .Where(x => x.SaldoInicial + valorTransacao >= x.Limite * -1 || valorTransacao > 0)
-        //    .ExecuteUpdateAsync(x =>
-        //        x.SetProperty(e => e.SaldoInicial, e => e.SaldoInicial + valorTransacao));
+        var result = connection.Execute(sql3, new { request.Id, valorTransacao });
 
-        //if (result == 0)
-        //{
-        //    return UnprocessableEntity("Limite excedido");
-        //}
-
-        //--------------------------------------------------------------------------------------------------------
-
-        var result = await _context.Clientes
-                                    .Where(x => x.Id == request.Id)
-                                    .Where(x => x.SaldoInicial + valorTransacao >= x.Limite * -1 || valorTransacao > 0)
-                                    .FirstOrDefaultAsync(cancellationToken);
-
-        if (result != null)
+        if (result == 0)
         {
-            result.SaldoInicial += valorTransacao;
+            return new CreateTransacaoCommandViewModel(OperationResult.Failed);
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
-
-        cliente = await _context.Clientes.FindAsync([request.Id], cancellationToken: cancellationToken);
+        cliente = connection.QueryFirstOrDefault<Cliente>(sql1, new { request.Id });
 
         return new CreateTransacaoCommandViewModel(OperationResult.Success, cliente?.SaldoInicial, cliente?.Limite);
     }
