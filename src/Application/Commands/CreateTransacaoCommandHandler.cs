@@ -15,12 +15,12 @@ public sealed class CreateTransacaoCommandHandler(IConnectionFactory connectionF
 
         using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
-        var cliente = await _clienteRepository.GetClienteAsync(request.Id, connection);
+        var cliente = _clienteRepository.GetCliente(request.Id, connection);
 
         if (cliente is null)
             return new CreateTransacaoCommandViewModel(OperationResult.NotFound);
 
-        await _transacaoRepository.CreateTransacaoAsync(
+        _transacaoRepository.CreateTransacao(
                         request.Transacao.Valor,
                         request.Transacao.Tipo,
                         request.Transacao.Descricao,
@@ -30,14 +30,14 @@ public sealed class CreateTransacaoCommandHandler(IConnectionFactory connectionF
 
         var valorTransacao = request.Transacao.Tipo == 'c' ? request.Transacao.Valor : request.Transacao.Valor * -1;
 
-        var success = await _clienteRepository.UpdateSaldoClienteAsync(request.Id, valorTransacao, connection);
+        var success = _clienteRepository.UpdateSaldoCliente(request.Id, valorTransacao, connection);
 
         if (!success)
         {
             return new CreateTransacaoCommandViewModel(OperationResult.Failed);
         }
 
-        cliente = await _clienteRepository.GetClienteAsync(request.Id, connection);
+        cliente = _clienteRepository.GetCliente(request.Id, connection);
 
         await transaction.CommitAsync(cancellationToken);
 

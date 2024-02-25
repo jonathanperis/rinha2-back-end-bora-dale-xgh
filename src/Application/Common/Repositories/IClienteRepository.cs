@@ -2,9 +2,9 @@
 
 public interface IClienteRepository
 {
-    Task<SaldoDto?> GetSaldoTotalAsync(int Id, NpgsqlConnection connection);
+    SaldoDto? GetSaldoTotal(int Id, NpgsqlConnection connection);
 
-    Task<ClienteDto?> GetClienteAsync(int Id, NpgsqlConnection connection);
+    ClienteDto? GetCliente(int Id, NpgsqlConnection connection);
 
-    Task<bool> UpdateSaldoClienteAsync(int Id, int ValorTransacao, NpgsqlConnection connection);
+    bool UpdateSaldoCliente(int Id, int ValorTransacao, NpgsqlConnection connection);
 }

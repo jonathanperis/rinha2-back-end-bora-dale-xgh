@@ -2,14 +2,14 @@
 
 internal sealed class TransacaoRepository : ITransacaoRepository
 {
-    public async Task CreateTransacaoAsync(int Valor, char Tipo, string? Descricao, int ClienteId, DateTime RealizadoEm, NpgsqlConnection connection)
+    public void CreateTransacao(int Valor, char Tipo, string? Descricao, int ClienteId, DateTime RealizadoEm, NpgsqlConnection connection)
     {
         const string sql = @"
                             INSERT INTO public.""Transacoes"" (""Valor"", ""Tipo"", ""Descricao"", ""ClienteId"", ""RealizadoEm"")
                             VALUES (@Valor, @Tipo, @Descricao, @ClienteId, @RealizadoEm);
                             ";
 
-        await connection.ExecuteAsync(sql, new
+        connection.Execute(sql, new
         {
             Valor,
             Tipo,
@@ -19,7 +19,7 @@ internal sealed class TransacaoRepository : ITransacaoRepository
         });
     }
 
-    public async Task<IEnumerable<TransacaoDto>?> ListTransacaoAsync(int ClienteId, NpgsqlConnection connection)
+    public IEnumerable<TransacaoDto>? ListTransacao(int ClienteId, NpgsqlConnection connection)
     {
         const string sql = @"
                             SELECT ""Valor"", ""Tipo"", ""Descricao"", ""RealizadoEm""
@@ -29,6 +29,6 @@ internal sealed class TransacaoRepository : ITransacaoRepository
                             LIMIT 10;
                             ";
 
-        return await connection.QueryAsync<TransacaoDto>(sql, new { ClienteId });
+        return connection.Query<TransacaoDto>(sql, new { ClienteId });
     }
 }

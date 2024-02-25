@@ -13,12 +13,12 @@ public sealed class GetExtratoQueryHandler(IConnectionFactory connectionFactory,
         await using var connection = _connectionFactory.CreateConnection();
         connection.Open();
 
-        var saldo = await _clienteRepository.GetSaldoTotalAsync(request.Id, connection);
+        var saldo = _clienteRepository.GetSaldoTotal(request.Id, connection);
 
         if (saldo is null)
             return new GetExtratoQueryViewModel(OperationResult.NotFound);
 
-        var ultimasTransacoes = await _transacaoRepository.ListTransacaoAsync(request.Id, connection);
+        var ultimasTransacoes = _transacaoRepository.ListTransacao(request.Id, connection);
         
         return new GetExtratoQueryViewModel(OperationResult.Success, saldo, ultimasTransacoes?.ToList());
     }
