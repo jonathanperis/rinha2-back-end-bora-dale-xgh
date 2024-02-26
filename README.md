@@ -8,6 +8,10 @@ Versão C# da [rinha de backend 2ª edição - 2024/Q1](https://github.com/zanfr
 - nginx
 - postgresql
 
+## Otimizações
+
+- [Trimming](https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/trimming-options?pivots=dotnet-8-0#trimming-framework-library-features)
+
 ## Rodando o projeto
 
 ```bash

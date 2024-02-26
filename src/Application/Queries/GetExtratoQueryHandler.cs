@@ -20,6 +20,6 @@ public sealed class GetExtratoQueryHandler(IConnectionFactory connectionFactory,
 
         var ultimasTransacoes = _transacaoRepository.ListTransacao(request.Id, connection);
         
-        return new GetExtratoQueryViewModel(OperationResult.Success, saldo, ultimasTransacoes?.ToList());
+        return new GetExtratoQueryViewModel(OperationResult.Success, new ExtratoDto { Saldo = saldo, UltimasTransacoes = ultimasTransacoes?.ToList() });
     }
 }

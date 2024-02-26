@@ -5,7 +5,7 @@ internal sealed class ClienteRepository : IClienteRepository
     public ClienteDto? GetCliente(int Id, NpgsqlConnection connection)
     {
         const string sql = @"
-                            SELECT ""Id"", ""Limite"", ""SaldoInicial""
+                            SELECT ""Id"", ""Limite"", ""SaldoInicial"" AS Saldo
                             FROM public.""Clientes""
                             WHERE ""Id"" = @Id;
                             ";

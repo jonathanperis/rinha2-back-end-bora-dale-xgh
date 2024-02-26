@@ -3,5 +3,6 @@
 public sealed record ClienteDto
 {
     public int Limite { get; set; }
-    public int SaldoInicial { get; set; }
+
+    public int Saldo { get; set; }
 }

@@ -1,3 +1,3 @@
 ﻿namespace Application.Queries;
 
-public sealed record GetExtratoQueryViewModel(OperationResult OperationResult, SaldoDto? Saldo = default, List<TransacaoDto>? UltimasTransacoes = default);
+public sealed record GetExtratoQueryViewModel(OperationResult OperationResult, ExtratoDto? Extrato = default);

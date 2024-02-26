@@ -41,6 +41,6 @@ public sealed class CreateTransacaoCommandHandler(IConnectionFactory connectionF
 
         await transaction.CommitAsync(cancellationToken);
 
-        return new CreateTransacaoCommandViewModel(OperationResult.Success, cliente?.SaldoInicial, cliente?.Limite);
+        return new CreateTransacaoCommandViewModel(OperationResult.Success, cliente);
     }
 }
