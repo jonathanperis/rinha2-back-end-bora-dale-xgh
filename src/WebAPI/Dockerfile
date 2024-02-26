@@ -28,7 +28,7 @@ FROM build AS publish
 
 ARG BUILD_CONFIGURATION=Release
 
-RUN dotnet publish "./WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish -r linux-x64 "./WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish --self-contained
 
 FROM base AS final
 
