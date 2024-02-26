@@ -17,7 +17,6 @@
 		<TrimMode>partial</TrimMode>		
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
-        <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
 
 		<!-- Extra Optimizations -->
