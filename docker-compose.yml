@@ -11,7 +11,7 @@ services:
       - db
     restart: always      
     environment:
-      ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha;No Reset On Close=true;Max Auto Prepare=10;Auto Prepare Min Usages=1;Pooling=true;Maximum Pool Size=30;
+      ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha;No Reset On Close=true;Max Auto Prepare=10;Auto Prepare Min Usages=1;Pooling=true;Maximum Pool Size=50;
     deploy:
       resources:
         limits:
