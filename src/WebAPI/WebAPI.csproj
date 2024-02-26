@@ -4,23 +4,33 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		
-		<PublishAot>true</PublishAot>
 
+ 		<SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
+        <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+
+		<!-- AOT Optimizations -->
+        <PublishAot>true</PublishAot>
+        <OptimizationPreference>Speed</OptimizationPreference>
+
+		<!-- Trim Optimizations -->
 		<PublishTrimmed>true</PublishTrimmed>
-		<TrimMode>partial</TrimMode>
-		<EnableTrimAnalyzer>false</EnableTrimAnalyzer>
-		<TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
-		<EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-		<EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
-		<InvariantGlobalization>true</InvariantGlobalization>
-		<MetadataUpdaterSupport>false</MetadataUpdaterSupport>
-		<StackTraceSupport>false</StackTraceSupport>
-		<HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
-		<MetadataUpdaterSupport>false</MetadataUpdaterSupport>
-		<DebuggerSupport>false</DebuggerSupport>
-		<ReadyToRun>true</ReadyToRun>
-		<PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+		<TrimMode>partial</TrimMode>		
+        <PublishReadyToRun>true</PublishReadyToRun>
+        <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+
+		<!-- Extra Optimizations -->
+        <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
+        <DebuggerSupport>false</DebuggerSupport>
+        <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+        <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+        <EventSourceSupport>false</EventSourceSupport>
+        <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+        <StackTraceSupport>false</StackTraceSupport>
+        <UseSystemResourceKeys>true</UseSystemResourceKeys>
 
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>..\..</DockerfileContext>
