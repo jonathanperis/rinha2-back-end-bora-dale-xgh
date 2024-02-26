@@ -15,6 +15,13 @@ app.MapGet("/", () => "Hello World!");
 
 app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transacao, ISender sender, CancellationToken cancellationToken) =>
 {
+    if (transacao.Tipo != 'c' && transacao.Tipo != 'd')
+        return Results.UnprocessableEntity("Tipo inválido");
+    if (!int.TryParse(transacao.Valor.ToString(), out var valor))
+        return Results.UnprocessableEntity("Valor inválido");
+    if (string.IsNullOrEmpty(transacao.Descricao) || transacao.Descricao.Length > 10)
+        return Results.UnprocessableEntity("Descrição inválida");
+
     var result = await sender.Send(new CreateTransacaoCommand(id, transacao), cancellationToken);
 
     return result.OperationResult switch
