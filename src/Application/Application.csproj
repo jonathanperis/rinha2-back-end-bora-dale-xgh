@@ -7,7 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dapper" Version="2.1.28" />
 		<PackageReference Include="Mediator.Abstractions" Version="2.1.7" />
 		<PackageReference Include="Mediator.SourceGenerator " Version="2.1.7" />
 		<PackageReference Include="Npgsql" Version="8.0.2" />

@@ -13,7 +13,7 @@ public sealed class CreateTransacaoCommandHandler(IConnectionFactory connectionF
         await using var connection = _connectionFactory.CreateConnection();
         connection.Open();
 
-        using var transaction = await connection.BeginTransactionAsync(cancellationToken);
+        // using var transaction = await connection.BeginTransactionAsync(cancellationToken);
 
         var cliente = _clienteRepository.GetCliente(request.Id, connection);
 
@@ -22,13 +22,13 @@ public sealed class CreateTransacaoCommandHandler(IConnectionFactory connectionF
 
         _transacaoRepository.CreateTransacao(
                         request.Transacao.Valor,
-                        request.Transacao.Tipo,
+                        request.Transacao.Tipo!,
                         request.Transacao.Descricao,
                         request.Id,
                         DateTime.UtcNow,
                         connection);
 
-        var valorTransacao = request.Transacao.Tipo == 'c' ? request.Transacao.Valor : request.Transacao.Valor * -1;
+        var valorTransacao = request.Transacao.Tipo == "c" ? request.Transacao.Valor : request.Transacao.Valor * -1;
 
         var success = _clienteRepository.UpdateSaldoCliente(request.Id, valorTransacao, connection);
 
@@ -39,7 +39,7 @@ public sealed class CreateTransacaoCommandHandler(IConnectionFactory connectionF
 
         cliente = _clienteRepository.GetCliente(request.Id, connection);
 
-        await transaction.CommitAsync(cancellationToken);
+        // await transaction.CommitAsync(cancellationToken);
 
         return new CreateTransacaoCommandViewModel(OperationResult.Success, cliente);
     }

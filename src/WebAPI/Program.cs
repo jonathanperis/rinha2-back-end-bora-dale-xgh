@@ -15,7 +15,7 @@ app.MapGet("/", () => "Hello World!");
 
 app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transacao, ISender sender, CancellationToken cancellationToken) =>
 {
-    if (transacao.Tipo != 'c' && transacao.Tipo != 'd')
+    if (transacao.Tipo != "c" && transacao.Tipo != "d")
         return Results.UnprocessableEntity("Tipo invalido");
     if (!int.TryParse(transacao.Valor.ToString(), out var valor))
         return Results.UnprocessableEntity("Valor invalido");

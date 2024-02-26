@@ -1,5 +1,6 @@
 ﻿namespace Infrastructure.Common.Repositories;
 
+[DapperAot]
 internal sealed class ClienteRepository : IClienteRepository
 {
     public ClienteDto? GetCliente(int Id, NpgsqlConnection connection)

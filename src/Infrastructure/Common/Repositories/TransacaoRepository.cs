@@ -1,8 +1,9 @@
 ﻿namespace Infrastructure.Common.Repositories;
 
-internal sealed class TransacaoRepository : ITransacaoRepository
+[DapperAot]
+internal sealed class TransacaoRepository() : ITransacaoRepository
 {
-    public void CreateTransacao(int Valor, char Tipo, string Descricao, int ClienteId, DateTime RealizadoEm, NpgsqlConnection connection)
+    public void CreateTransacao(int Valor, string Tipo, string Descricao, int ClienteId, DateTime RealizadoEm, NpgsqlConnection connection)
     {
         const string sql = @"
                             INSERT INTO public.""Transacoes"" (""Valor"", ""Tipo"", ""Descricao"", ""ClienteId"", ""RealizadoEm"")

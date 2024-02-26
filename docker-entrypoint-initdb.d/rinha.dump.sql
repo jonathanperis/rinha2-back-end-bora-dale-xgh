@@ -55,7 +55,7 @@ CREATE TABLE public."Transacoes" (
     "Id" integer NOT NULL,
     "Valor" integer NOT NULL,
     "ClienteId" integer NOT NULL,
-    "Tipo" character(1) NOT NULL,
+    "Tipo" varchar(1) NOT NULL,
     "Descricao" text NOT NULL,
     "RealizadoEm" timestamp DEFAULT NOW()
 );

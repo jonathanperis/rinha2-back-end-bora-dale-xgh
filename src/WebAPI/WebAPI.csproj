@@ -5,9 +5,9 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		
-		<!--<PublishAot>true</PublishAot>-->
+		<PublishAot>true</PublishAot>
 
-		<!-- <PublishTrimmed>true</PublishTrimmed>
+		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>
 		<EnableTrimAnalyzer>false</EnableTrimAnalyzer>
 		<TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
@@ -20,12 +20,7 @@
 		<MetadataUpdaterSupport>false</MetadataUpdaterSupport>
 		<DebuggerSupport>false</DebuggerSupport>
 		<ReadyToRun>true</ReadyToRun>
-		<PublishReadyToRunComposite>true</PublishReadyToRunComposite>-->
-			
-		<PublishAot>true</PublishAot>
-		<PublishTrimmed>true</PublishTrimmed>
-		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-		<PlatformTarget>x64</PlatformTarget>
+		<PublishReadyToRunComposite>true</PublishReadyToRunComposite>
 
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>..\..</DockerfileContext>
