@@ -7,7 +7,7 @@
 		
 		<!--<PublishAot>true</PublishAot>-->
 
-		<PublishTrimmed>true</PublishTrimmed>
+		<!-- <PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>
 		<EnableTrimAnalyzer>false</EnableTrimAnalyzer>
 		<TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
@@ -20,8 +20,13 @@
 		<MetadataUpdaterSupport>false</MetadataUpdaterSupport>
 		<DebuggerSupport>false</DebuggerSupport>
 		<ReadyToRun>true</ReadyToRun>
-		<PublishReadyToRunComposite>true</PublishReadyToRunComposite>		
-		
+		<PublishReadyToRunComposite>true</PublishReadyToRunComposite>-->
+			
+		<PublishAot>true</PublishAot>
+		<PublishTrimmed>true</PublishTrimmed>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<PlatformTarget>x64</PlatformTarget>
+
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>..\..</DockerfileContext>
 		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
