@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   webapi1: &webapi1
+    image: jonathanperis/rinha2-back-end-bora-dale:latest
     hostname: webapi1
     container_name: api-service-1
     build:
