@@ -17,12 +17,12 @@ internal sealed class ClienteRepository : IClienteRepository
     public SaldoDto GetSaldoTotal(int Id, NpgsqlConnection connection)
     {
         const string sql = @"
-                            SELECT ""SaldoInicial"" AS Total, ""Limite"" AS Limite, NOW() AS data_extrato
+                            SELECT ""Id"", ""SaldoInicial"" AS Total, ""Limite"" AS Limite, NOW() AS data_extrato
                             FROM public.""Clientes""
                             WHERE ""Id"" = @Id;
                             ";
 
-        return connection.QueryFirst<SaldoDto>(sql, new { Id });
+        return connection.QueryFirstOrDefault<SaldoDto>(sql, new { Id });
     }
 
     public bool UpdateSaldoCliente(int Id, int ValorTransacao, NpgsqlConnection connection)
