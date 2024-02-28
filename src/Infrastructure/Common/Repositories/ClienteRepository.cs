@@ -11,7 +11,7 @@ internal sealed class ClienteRepository : IClienteRepository
                             WHERE ""Id"" = @Id;
                             ";
 
-        return connection.QueryFirst<ClienteDto>(sql, new { Id });
+        return connection.QueryFirstOrDefault<ClienteDto>(sql, new { Id });
     }
 
     public SaldoDto GetSaldoTotal(int Id, NpgsqlConnection connection)
