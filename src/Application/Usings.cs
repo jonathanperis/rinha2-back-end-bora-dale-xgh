@@ -5,5 +5,3 @@ global using Application.Common.Repositories;
 global using Mediator;
 global using Microsoft.Extensions.DependencyInjection;
 global using Npgsql;
-global using System.ComponentModel.DataAnnotations;
-global using System.Text.Json.Serialization;

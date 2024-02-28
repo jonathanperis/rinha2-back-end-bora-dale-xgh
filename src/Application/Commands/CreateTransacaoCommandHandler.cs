@@ -17,8 +17,8 @@ public sealed class CreateTransacaoCommandHandler(IConnectionFactory connectionF
 
         var cliente = _clienteRepository.GetCliente(request.Id, connection);
 
-        if (cliente is null)
-            return new CreateTransacaoCommandViewModel(OperationResult.NotFound);
+        // if (cliente.Id == 0)
+        //     return new CreateTransacaoCommandViewModel(OperationResult.NotFound);
 
         _transacaoRepository.CreateTransacao(
                         request.Transacao.Valor,

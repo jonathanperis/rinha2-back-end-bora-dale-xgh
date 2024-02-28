@@ -3,7 +3,7 @@
 [DapperAot]
 internal sealed class ClienteRepository : IClienteRepository
 {
-    public ClienteDto? GetCliente(int Id, NpgsqlConnection connection)
+    public ClienteDto GetCliente(int Id, NpgsqlConnection connection)
     {
         const string sql = @"
                             SELECT ""Id"", ""Limite"", ""SaldoInicial"" AS Saldo
@@ -11,18 +11,18 @@ internal sealed class ClienteRepository : IClienteRepository
                             WHERE ""Id"" = @Id;
                             ";
 
-        return connection.QueryFirstOrDefault<ClienteDto>(sql, new { Id });
+        return connection.QueryFirst<ClienteDto>(sql, new { Id });
     }
 
-    public SaldoDto? GetSaldoTotal(int Id, NpgsqlConnection connection)
+    public SaldoDto GetSaldoTotal(int Id, NpgsqlConnection connection)
     {
         const string sql = @"
-                            SELECT ""SaldoInicial"" AS Total, ""Limite"" AS Limite
+                            SELECT ""SaldoInicial"" AS Total, ""Limite"" AS Limite, NOW() AS data_extrato
                             FROM public.""Clientes""
                             WHERE ""Id"" = @Id;
                             ";
 
-        return connection.QueryFirstOrDefault<SaldoDto>(sql, new { Id });
+        return connection.QueryFirst<SaldoDto>(sql, new { Id });
     }
 
     public bool UpdateSaldoCliente(int Id, int ValorTransacao, NpgsqlConnection connection)

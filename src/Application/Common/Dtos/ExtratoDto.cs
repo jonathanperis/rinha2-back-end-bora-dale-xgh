@@ -1,9 +1,3 @@
 ﻿namespace Application.Common.Dtos;
 
-public sealed record ExtratoDto
-{
-    public SaldoDto? Saldo { get; set; }
-
-    [JsonPropertyName("ultimas_transacoes")]
-    public List<TransacaoDto>? UltimasTransacoes { get; set; }
-}
+public readonly record struct ExtratoDto(SaldoDto Saldo, List<TransacaoDto> ultimas_transacoes);

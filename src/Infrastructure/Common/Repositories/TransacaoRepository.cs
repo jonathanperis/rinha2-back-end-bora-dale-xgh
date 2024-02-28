@@ -20,7 +20,7 @@ internal sealed class TransacaoRepository() : ITransacaoRepository
         });
     }
 
-    public IEnumerable<TransacaoDto>? ListTransacao(int ClienteId, NpgsqlConnection connection)
+    public IEnumerable<TransacaoDto> ListTransacao(int ClienteId, NpgsqlConnection connection)
     {
         const string sql = @"
                             SELECT ""Valor"", ""Tipo"", ""Descricao"", ""RealizadoEm""

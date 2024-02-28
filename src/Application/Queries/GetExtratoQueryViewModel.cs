@@ -1,3 +1,3 @@
 ﻿namespace Application.Queries;
 
-public sealed record GetExtratoQueryViewModel(OperationResult OperationResult, ExtratoDto? Extrato = default);
+public readonly record struct GetExtratoQueryViewModel(OperationResult OperationResult, ExtratoDto Extrato = default);

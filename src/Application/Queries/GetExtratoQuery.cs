@@ -1,3 +1,3 @@
 ﻿namespace Application.Queries;
 
-public sealed record GetExtratoQuery(int Id) : IRequest<GetExtratoQueryViewModel>;
+public readonly record struct GetExtratoQuery(int Id) : IRequest<GetExtratoQueryViewModel>;

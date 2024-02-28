@@ -1,8 +1,6 @@
 ﻿namespace Application.Common.Dtos;
 
-public sealed record TransacaoDto
+public readonly record struct TransacaoDto(int Valor, string? Tipo)
 {
-    public int Valor { get; set; }    
-    public string? Tipo { get; set; }
-    public string Descricao { get; set; } = string.Empty;
+    public string Descricao { get; } = string.Empty;
 }

@@ -15,11 +15,11 @@ public sealed class GetExtratoQueryHandler(IConnectionFactory connectionFactory,
 
         var saldo = _clienteRepository.GetSaldoTotal(request.Id, connection);
 
-        if (saldo is null)
-            return new GetExtratoQueryViewModel(OperationResult.NotFound);
+        // if (saldo is null)
+        //     return new GetExtratoQueryViewModel(OperationResult.NotFound);
 
         var ultimasTransacoes = _transacaoRepository.ListTransacao(request.Id, connection);
         
-        return new GetExtratoQueryViewModel(OperationResult.Success, new ExtratoDto { Saldo = saldo, UltimasTransacoes = ultimasTransacoes?.ToList() });
+        return new GetExtratoQueryViewModel(OperationResult.Success, new ExtratoDto(saldo, ultimasTransacoes.ToList()));
     }
 }
