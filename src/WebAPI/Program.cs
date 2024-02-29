@@ -27,18 +27,17 @@ var clientes = new Dictionary<int, int>
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlConnection connection) =>
+app.MapGet("/clientes/{id:int}/extrato", async (int id) =>
 {
     if (!clientes.ContainsKey(id))
         return Results.NotFound();
 
-    await using (connection)
+    await using var dataSource = NpgsqlDataSource.Create(builder.Configuration.GetConnectionString("DefaultConnection")!);
+
+    SaldoDto saldo;
+
+    await using (var cmd = dataSource.CreateCommand())
     {
-        await connection.OpenAsync();
-
-        SaldoDto saldo;
-
-        var cmd = connection.CreateCommand();
         cmd.CommandText = @"
                             SELECT ""Id"", ""SaldoInicial"" AS Total, ""Limite"" AS Limite, NOW() AS data_extrato
                             FROM public.""Clientes""
@@ -54,9 +53,11 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlConnection connect
 
         if (saldo.Id == 0)
             return Results.NotFound();
+    }
 
-        var cmd2 = connection.CreateCommand();
-        cmd2.CommandText = @"
+    await using (var cmd = dataSource.CreateCommand())
+    {
+        cmd.CommandText = @"
                             SELECT ""Valor"", ""Tipo"", ""Descricao"", ""RealizadoEm""
                             FROM public.""Transacoes""
                             WHERE ""ClienteId"" = $1
@@ -64,22 +65,22 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlConnection connect
                             LIMIT 10;
                             ";
 
-        cmd2.Parameters.AddWithValue(id);
+        cmd.Parameters.AddWithValue(id);
 
-        using var reader2 = await cmd2.ExecuteReaderAsync();
+        using var reader = await cmd.ExecuteReaderAsync();
 
         var ultimasTransacoes = new List<TransacaoDto>();
 
-        while (await reader2.ReadAsync())
+        while (await reader.ReadAsync())
         {
-            ultimasTransacoes.Add(new TransacaoDto(reader2.GetInt32(0), reader2.GetString(1), reader2.GetString(2)));
+            ultimasTransacoes.Add(new TransacaoDto(reader.GetInt32(0), reader.GetString(1), reader.GetString(2)));
         }
 
-        return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));
+        return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));      
     }
 });
 
-app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transacao, NpgsqlConnection connection) =>
+app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transacao) =>
 {
     if (!clientes.ContainsKey(id))
         return Results.NotFound();
@@ -87,11 +88,10 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
     if (!transacao.Valida())
         return Results.UnprocessableEntity();
 
-    await using (connection)
-    {
-        await connection.OpenAsync();
+    await using var dataSource = NpgsqlDataSource.Create(builder.Configuration.GetConnectionString("DefaultConnection")!);
 
-        var cmd = connection.CreateCommand();
+    await using (var cmd = dataSource.CreateCommand())
+    {
         cmd.CommandText = @"
                             SELECT ""Id"", ""Limite"", ""SaldoInicial"" AS Saldo
                             FROM public.""Clientes""
@@ -107,8 +107,10 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
 
         if (cliente.Id == 0)
             return Results.NotFound();
+    }
 
-        cmd = connection.CreateCommand();
+    await using (var cmd = dataSource.CreateCommand())
+    {
         cmd.CommandText = @"
                             INSERT INTO public.""Transacoes"" (""Valor"", ""Tipo"", ""Descricao"", ""ClienteId"", ""RealizadoEm"")
                             VALUES ($1, $2, $3, $4, $5);
@@ -121,17 +123,19 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
         cmd.Parameters.AddWithValue(DateTime.UtcNow);
 
         await cmd.ExecuteNonQueryAsync();
+    }
+
+    await using (var cmd = dataSource.CreateCommand())
+    {
+        cmd.CommandText = @"
+                    UPDATE public.""Clientes""
+                    SET ""SaldoInicial"" = ""SaldoInicial"" + $2
+                    WHERE ""Id"" = $1
+                    AND (""SaldoInicial"" + $2 >= ""Limite"" * -1 OR $2 > 0);
+                    ";
 
         var valorTransacao = transacao.Tipo == "c" ? transacao.Valor : transacao.Valor * -1;
-
-        cmd = connection.CreateCommand();
-        cmd.CommandText = @"
-                            UPDATE public.""Clientes""
-                            SET ""SaldoInicial"" = ""SaldoInicial"" + $2
-                            WHERE ""Id"" = $1
-                            AND (""SaldoInicial"" + $2 >= ""Limite"" * -1 OR $2 > 0);
-                            ";
-
+        
         cmd.Parameters.AddWithValue(id);
         cmd.Parameters.AddWithValue(valorTransacao);
 
@@ -141,8 +145,10 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
         {
             return Results.UnprocessableEntity();
         }
+    }
 
-        cmd = connection.CreateCommand();
+    await using (var cmd = dataSource.CreateCommand())
+    {
         cmd.CommandText = @"
                             SELECT ""Id"", ""Limite"", ""SaldoInicial"" AS Saldo
                             FROM public.""Clientes""
@@ -154,15 +160,9 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
         using var reader2 = await cmd.ExecuteReaderAsync();
         await reader2.ReadAsync();
 
-        cliente = new ClienteDto(reader2.GetInt32(0), reader2.GetInt32(1), reader2.GetInt32(2));
+        var cliente = new ClienteDto(reader2.GetInt32(0), reader2.GetInt32(1), reader2.GetInt32(2));
 
-        return Results.Ok(cliente);
-
-        // cliente = _clienteRepository.GetCliente(request.Id, connection);
-
-        // return new CreateTransacaoCommandViewModel(OperationResult.Success, cliente);
-
-        //----------------------------------------------        
+        return Results.Ok(cliente); 
     }
 });
 
