@@ -27,12 +27,10 @@ var clientes = new Dictionary<int, int>
 
 app.MapGet("/", () => "Hello World!");
 
-app.MapGet("/clientes/{id:int}/extrato", async (int id) =>
+app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlDataSource dataSource) =>
 {
     if (!clientes.ContainsKey(id))
         return Results.NotFound();
-
-    await using var dataSource = NpgsqlDataSource.Create(builder.Configuration.GetConnectionString("DefaultConnection")!);
 
     SaldoDto saldo;
 
@@ -80,15 +78,13 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id) =>
     }
 });
 
-app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transacao) =>
+app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transacao, NpgsqlDataSource dataSource) =>
 {
     if (!clientes.ContainsKey(id))
         return Results.NotFound();
 
     if (!transacao.Valida())
         return Results.UnprocessableEntity();
-
-    await using var dataSource = NpgsqlDataSource.Create(builder.Configuration.GetConnectionString("DefaultConnection")!);
 
     await using (var cmd = dataSource.CreateCommand())
     {
