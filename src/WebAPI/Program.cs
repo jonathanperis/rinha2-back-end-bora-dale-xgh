@@ -63,7 +63,7 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
         var cliente = new ClienteDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2));
 
         if (cliente.Id == 0)
-            Results.NotFound();
+            return Results.NotFound();
     }
 
     // await using var connection = _connectionFactory.CreateConnection();
@@ -160,10 +160,10 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
     //----------------------------------------------
 });
 
-app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlConnection connection) =>
+app.MapGet("/clientes/{id:int}/extrato", async (int id) =>
 {
-    // if (!clientes.ContainsKey(id))
-    //     return Results.NotFound();
+    if (!clientes.ContainsKey(id))
+        return Results.NotFound();
 
     await using var dataSource = NpgsqlDataSource.Create(builder.Configuration.GetConnectionString("DefaultConnection")!);
 
@@ -185,7 +185,7 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlConnection connect
         saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetDateTime(3));
 
         if (saldo.Id == 0)
-            Results.NotFound();
+            return Results.NotFound();
     }
 
     // await using var connection = _connectionFactory.CreateConnection();
@@ -219,8 +219,8 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlConnection connect
             ultimasTransacoes.Add(new TransacaoDto(reader.GetInt32(0), reader.GetString(1), reader.GetString(2)));
         }
 
-        Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));
-    }
+        return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));
+    }  
 
     // var ultimasTransacoes = _transacaoRepository.ListTransacao(request.Id, connection);
     
