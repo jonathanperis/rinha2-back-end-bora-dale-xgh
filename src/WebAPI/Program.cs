@@ -37,7 +37,7 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlDataSource dataSou
     await using (var cmd = dataSource.CreateCommand())
     {
         cmd.CommandText = @"
-                            SELECT ""Id"", ""SaldoInicial"" AS Total, ""Limite"" AS Limite, NOW() AS data_extrato
+                            SELECT ""SaldoInicial"" AS Total, ""Limite"" AS Limite, NOW() AS data_extrato
                             FROM public.""Clientes""
                             WHERE ""Id"" = $1;
                             ";
@@ -47,10 +47,7 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlDataSource dataSou
         using var reader = await cmd.ExecuteReaderAsync();
         await reader.ReadAsync();
 
-        saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetDateTime(3));
-
-        if (saldo.Id == 0)
-            return Results.NotFound();
+        saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetDateTime(2));
     }
 
     await using (var cmd = dataSource.CreateCommand())
@@ -122,25 +119,6 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
     await using (var cmd = dataSource.CreateCommand())
     {
         cmd.CommandText = @"
-                            SELECT ""Id"", ""Limite"", ""SaldoInicial"" AS Saldo
-                            FROM public.""Clientes""
-                            WHERE ""Id"" = $1;
-                            ";
-
-        cmd.Parameters.AddWithValue(id);
-
-        using var reader = await cmd.ExecuteReaderAsync();
-        await reader.ReadAsync();
-
-        var cliente = new ClienteDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2));
-
-        if (cliente.Id == 0)
-            return Results.NotFound();
-    }
-
-    await using (var cmd = dataSource.CreateCommand())
-    {
-        cmd.CommandText = @"
                             INSERT INTO public.""Transacoes"" (""Valor"", ""Tipo"", ""Descricao"", ""ClienteId"", ""RealizadoEm"")
                             VALUES ($1, $2, $3, $4, $5);
                             ";
@@ -206,7 +184,7 @@ internal partial class SourceGenerationContext : JsonSerializerContext { }
 
 internal readonly record struct ClienteDto(int Id, int Limite, int Saldo);
 internal readonly record struct ExtratoDto(SaldoDto Saldo, List<TransacaoDto> ultimas_transacoes);
-internal readonly record struct SaldoDto(int Id, int Total, int Limite, DateTime data_extrato);
+internal readonly record struct SaldoDto(int Total, int Limite, DateTime data_extrato);
 internal readonly record struct TransacaoDto(int Valor, string Tipo, string Descricao)
 {
     private readonly static string[] tipoTransacao = ["c", "d"];
