@@ -17,8 +17,6 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 COPY ["src/WebAPI/WebAPI.csproj", "src/WebAPI/"]
-COPY ["src/Application/Application.csproj", "src/Application/"]
-COPY ["src/Infrastructure/Infrastructure.csproj", "src/Infrastructure/"]
 
 RUN dotnet restore "./src/WebAPI/./WebAPI.csproj"
 
