@@ -7,7 +7,7 @@ var builder = WebApplication.CreateSlimBuilder(args);
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-    options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, SourceGenerationContext.Default);
 });
 
 builder.Services.AddNpgsqlDataSource(
@@ -76,6 +76,37 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlDataSource dataSou
 
         return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));      
     }
+
+    // if (!clientes.ContainsKey(id))
+    //     return Results.NotFound();
+
+    // using var cmd = dataSource.CreateCommand();
+    // cmd.CommandText = @"
+    //     SELECT ""Id"", ""SaldoInicial"" AS Total, ""Limite"" AS Limite, NOW() AS data_extrato,
+    //            (SELECT array_to_json(array_agg(row(""Valor"", ""Tipo"", ""Descricao"", ""RealizadoEm"")))
+    //             FROM (
+    //                 SELECT ""Valor"", ""Tipo"", ""Descricao"", ""RealizadoEm""
+    //                 FROM public.""Transacoes""
+    //                 WHERE ""ClienteId"" = $1
+    //                 ORDER BY ""Id"" DESC
+    //                 LIMIT 10
+    //             ) AS t) AS ultimas_transacoes
+    //     FROM public.""Clientes""
+    //     WHERE ""Id"" = $1;
+    // ";
+
+    // cmd.Parameters.AddWithValue(id);
+
+    // using var reader = await cmd.ExecuteReaderAsync();
+    // await reader.ReadAsync();
+
+    // if (!reader.HasRows)
+    //     return Results.NotFound();
+
+    // var saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetDateTime(3));
+    // var ultimasTransacoes = JsonSerializer.Deserialize(reader.GetString(4), SourceGenerationContext.Default.ListTransacaoDto);
+
+    // return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes!));    
 });
 
 app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transacao, NpgsqlDataSource dataSource) =>
@@ -131,7 +162,7 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
                     ";
 
         var valorTransacao = transacao.Tipo == "c" ? transacao.Valor : transacao.Valor * -1;
-        
+
         cmd.Parameters.AddWithValue(id);
         cmd.Parameters.AddWithValue(valorTransacao);
 
@@ -153,10 +184,10 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
 
         cmd.Parameters.AddWithValue(id);
 
-        using var reader2 = await cmd.ExecuteReaderAsync();
-        await reader2.ReadAsync();
+        using var reader = await cmd.ExecuteReaderAsync();
+        await reader.ReadAsync();
 
-        var cliente = new ClienteDto(reader2.GetInt32(0), reader2.GetInt32(1), reader2.GetInt32(2));
+        var cliente = new ClienteDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2));
 
         return Results.Ok(cliente); 
     }
@@ -168,7 +199,8 @@ app.Run();
 [JsonSerializable(typeof(ExtratoDto))]
 [JsonSerializable(typeof(SaldoDto))]
 [JsonSerializable(typeof(TransacaoDto))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext { }
+// [JsonSerializable(typeof(List<TransacaoDto?>))]
+internal partial class SourceGenerationContext : JsonSerializerContext { }
 
 internal readonly record struct ClienteDto(int Id, int Limite, int Saldo);
 internal readonly record struct ExtratoDto(SaldoDto Saldo, List<TransacaoDto> ultimas_transacoes);
