@@ -77,6 +77,8 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, NpgsqlDataSource dataSou
         return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));      
     }
 
+    //------------------------------------
+
     // if (!clientes.ContainsKey(id))
     //     return Results.NotFound();
 
