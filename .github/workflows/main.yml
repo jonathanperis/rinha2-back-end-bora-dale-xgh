@@ -1,7 +1,6 @@
 name: Build, Publish and Deploy image to Docker Hub
 
 on:
-  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
@@ -79,15 +78,15 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4
 
-    # - name: test
-    #   run: |
-    #     docker-compose -f ./docker-compose.yml up -d
+    - name: test
+      run: |
+        docker-compose -f ./docker-compose.yml up -d
         
-    #     for i in {1..20}; do
-    #       curl --fail http://localhost:9999/clientes/1/extrato && \
-    #       echo "" && \
-    #       break || sleep 2;
-    #     done
+        for i in {1..20}; do
+          curl --fail http://localhost:9999/clientes/1/extrato && \
+          echo "" && \
+          break || sleep 2;
+        done
 
     - name: test
       run: |
