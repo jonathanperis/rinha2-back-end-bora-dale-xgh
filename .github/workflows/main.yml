@@ -80,7 +80,7 @@ jobs:
 
     - name: test
       run: |
-        docker-compose -f ./docker-compose.yml up -d
+        docker-compose -f ./prod/docker-compose.yml up -d
         
         for i in {1..20}; do
           curl --fail http://localhost:9999/clientes/1/extrato && \
