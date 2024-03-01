@@ -1,8 +1,8 @@
 #!/prod/bash
 
-RESULTS_WORKSPACE="rinha-de-backend-2024-q1/load-test/user-files/results"
-GATLING_BIN_DIR="rinha-de-backend-2024-q1/gatling-charts-highcharts-bundle-3.10.3/bin"
-GATLING_WORKSPACE="rinha-de-backend-2024-q1/load-test/user-files"
+RESULTS_WORKSPACE="$(pwd)/rinha-de-backend-2024-q1/load-test/user-files/results"
+GATLING_BIN_DIR=$(pwd)/rinha-de-backend-2024-q1//gatling-charts-highcharts-bundle-3.10.3/bin
+GATLING_WORKSPACE="$(pwd)/rinha-de-backend-2024-q1/load-test/user-files"
 
 runGatling() {
     sh $GATLING_BIN_DIR/gatling.sh -rm local -s RinhaBackendCrebitosSimulation \
