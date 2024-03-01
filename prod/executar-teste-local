@@ -1,7 +1,7 @@
 #!/bin/bash
 
 RESULTS_WORKSPACE="rinha-de-backend-2024-q1/load-test/user-files/results"
-GATLING_BIN_DIR="rinha-de-backend-2024-q1/gatling-charts-highcharts-bundle-3-10-3/bin"
+GATLING_BIN_DIR="rinha-de-backend-2024-q1/gatling-charts-highcharts-bundle-3.10.3/bin"
 GATLING_WORKSPACE="rinha-de-backend-2024-q1/load-test/user-files"
 
 runGatling() {
