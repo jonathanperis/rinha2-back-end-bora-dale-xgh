@@ -81,13 +81,13 @@ jobs:
     - name: test
       run: |
         docker-compose -f ./prod/docker-compose.yml up -d
-        
+        sleep 10
         for i in {1..20}; do
-          curl --fail http://localhost:9999/clientes/1/extrato && \
-          echo "" && \
-          break || sleep 2;
+          if curl --silent --fail http://localhost:9999/clientes/1/extrato; then
+            echo "Request successful!"
+            break
+          else
+            echo "Request failed, retrying..."
+            sleep 2
+          fi
         done
-
-    - name: test
-      run: |
-        ls -s    
