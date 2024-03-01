@@ -1,6 +1,7 @@
 name: Build, Publish and Deploy image to Docker Hub
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
