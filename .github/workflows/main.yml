@@ -122,7 +122,7 @@ jobs:
           git clone --depth 1 --single-branch -b main https://github.com/zanfranceschi/rinha-de-backend-2024-q1.git
           wget -P $RINHA_DIR https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/$RINHA_GATLING_VERSION/gatling-charts-highcharts-bundle-$RINHA_GATLING_VERSION-bundle.zip
           unzip -d $RINHA_DIR $RINHA_DIR/gatling-charts-highcharts-bundle-$RINHA_GATLING_VERSION-bundle.zip
-          ./bin/executar-teste-local
+          ./prod/executar-teste-local
 
           echo GATLING_REPORT=$(ls $RINHA_DIR/load-test/user-files/results | sort | head -n 1) >> $GITHUB_ENV
 
