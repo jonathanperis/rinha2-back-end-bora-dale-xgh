@@ -84,10 +84,10 @@ jobs:
         sleep 10
         for i in {1..20}; do
           if curl --silent --fail http://localhost:9999/clientes/1/extrato; then
-            echo "Request successful!"
+            echo " - Request successful!"
             break
           else
-            echo "Request failed, retrying..."
+            echo " - Request failed, retrying..."
             sleep 2
           fi
         done
