@@ -13,7 +13,6 @@ permissions:
   id-token: write
 
 env:
-  RINHA_GATLING_VERSION: 3.10.3
   RINHA_DIR: rinha-de-backend-2024-q1
 
 jobs:
