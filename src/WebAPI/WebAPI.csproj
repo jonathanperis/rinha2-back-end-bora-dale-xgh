@@ -6,11 +6,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- AOT Optimizations -->
-        <PublishAot>true</PublishAot>
+        <PublishAot>false</PublishAot>
         <OptimizationPreference>Speed</OptimizationPreference>
 
 		<!-- Trim Optimizations -->
-		<PublishTrimmed>true</PublishTrimmed>
+		<PublishTrimmed>false</PublishTrimmed>
 		<TrimMode>partial</TrimMode>		
         <PublishReadyToRun>true</PublishReadyToRun>
  		<SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
@@ -37,7 +37,18 @@
 
 	<ItemGroup>
 		<PackageReference Include="Npgsql" Version="8.0.2" />
-		<PackageReference Include="Npgsql.DependencyInjection" Version="8.0.2" />		
+		<PackageReference Include="Npgsql.DependencyInjection" Version="8.0.2" />
 	</ItemGroup>
 	
+	<ItemGroup>
+		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspnetCore" Version="1.7.0-rc.1" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />		
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.7.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="0.5.0-beta.4" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.7.0" />
+		<PackageReference Include="OpenTelemetry.ResourceDetectors.Container" Version="1.0.0-beta.6" />
+		<PackageReference Include="OpenTelemetry.ResourceDetectors.Host" Version="0.1.0-alpha.2" />
+	</ItemGroup>
+
 </Project>
