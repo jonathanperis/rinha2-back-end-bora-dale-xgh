@@ -25,7 +25,7 @@ docker-compose up -d nginx
 
 Resultados do Gatling. Todas requisições abaixo de 800ms. (Estes testes utilizaram um máximo de 250MB RAM distribuidos entre os recursos. 60% menos recurso de memória RAM do que o permitido pela rinha!
 
-![Gatling)](docs/gatling.png)
+![Gatling](docs/gatling.png)
 
 ## Métricas dos testes
 
@@ -33,14 +33,21 @@ Métricas colhidas no Docker Desktop após a execução do teste. O teste foi ex
 
 - Banco de dados (Postgresql)
 
-![Banco de dados)](docs/metrica-banco-de-dados.jpeg)
+![Banco de dados](docs/metrica-banco-de-dados.jpeg)
 
 - Endpoints (.NET)
 
-![Endpoint 1 da API)](docs/metrica-api-endpoint-1.jpeg)
+![Endpoint 1 da API](docs/metrica-api-endpoint-1.jpeg)
 
-![Endpoint 1 da API)](docs/metrica-api-endpoint-2.jpeg)
+![Endpoint 1 da API](docs/metrica-api-endpoint-2.jpeg)
 
 - Proxy reverso (Nginx)
 
-![Proxy reverso)](docs/metrica-proxy-reverso.jpeg)
+![Proxy reverso](docs/metrica-proxy-reverso.jpeg)
+
+Este repositorio foi desenvolvido utilizando de minha experiencia profissional e inspirado nos seguintes colegas da rinha:
+
+![rafaelpadovezi](https://github.com/rafaelpadovezi/rinha-2)
+![giggio](https://github.com/giggio/rinhaback2401-01)
+![zanfranceschi](https://github.com/zanfranceschi/rinha-de-backend-2024-q1-zan-dotnet)
+![offpepe](https://github.com/offpepe/rinha-2024-q1)
