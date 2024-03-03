@@ -47,7 +47,7 @@ Métricas colhidas no Docker Desktop após a execução do teste. O teste foi ex
 
 Este repositorio foi desenvolvido utilizando de minha experiencia profissional e inspirado nos seguintes colegas da rinha:
 
-- [rafaelpadovezi](https://github.com/rafaelpadovezi/rinha-2)
-- [giggio](https://github.com/giggio/rinhaback2401-01)
-- [zanfranceschi](https://github.com/zanfranceschi/rinha-de-backend-2024-q1-zan-dotnet)
-- [offpepe](https://github.com/offpepe/rinha-2024-q1)
+- [rafaelpadovezi/rinha-2](https://github.com/rafaelpadovezi/rinha-2)
+- [giggio/rinhaback2401-01](https://github.com/giggio/rinhaback2401-01)
+- [zanfranceschi/rinha-de-backend-2024-q1-zan-dotnet](https://github.com/zanfranceschi/rinha-de-backend-2024-q1-zan-dotnet)
+- [offpepe/rinha-2024-q1](https://github.com/offpepe/rinha-2024-q1)
