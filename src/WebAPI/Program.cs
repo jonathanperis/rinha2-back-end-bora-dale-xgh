@@ -30,8 +30,8 @@ builder.Services.AddOpenTelemetry()
         .AddProcessInstrumentation()
         .AddRuntimeInstrumentation()
         .AddAspNetCoreInstrumentation()
-        .AddPrometheusExporter());
-        
+        .AddPrometheusExporter());  
+
 builder.Services.AddNpgsqlDataSource(
     builder.Configuration.GetConnectionString("DefaultConnection")!
 );
@@ -118,21 +118,87 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
 
     await using (var cmd = dataSource.CreateCommand())
     {
-        cmd.CommandText = "SELECT GetUltimasTransacoes($1)";
+        cmd.CommandText = "SELECT * FROM GetUltimasTransacoes($1)";
         cmd.Parameters.AddWithValue(id);
 
         using var reader = await cmd.ExecuteReaderAsync();
 
-        Console.WriteLine($"Value: {reader.GetString(0)}");
+        var ultimasTransacoes = new List<TransacaoDto>();
 
-        var ultimasTransacoes = JsonSerializer.Deserialize(reader.GetString(0), SourceGenerationContext.Default.ListTransacaoDto);
+        while (await reader.ReadAsync())
+        {
+            ultimasTransacoes.Add(new TransacaoDto(reader.GetInt32(0), reader.GetString(1), reader.GetString(2)));
+        }
+
         return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));
     }
 });
 
 app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transacao, NpgsqlDataSource dataSource) =>
 {
-    if (!clientes.ContainsKey(id))
+    // if (!clientes.ContainsKey(id))
+    //     return Results.NotFound();
+
+    // if (!transacao.Valida())
+    //     return Results.UnprocessableEntity();
+
+    // await using (var cmd = dataSource.CreateCommand())
+    // {
+    //     cmd.CommandText = @"
+    //                         INSERT INTO public.""Transacoes"" (""Valor"", ""Tipo"", ""Descricao"", ""ClienteId"", ""RealizadoEm"")
+    //                         VALUES ($1, $2, $3, $4, $5);
+    //                         ";
+
+    //     cmd.Parameters.AddWithValue(transacao.Valor);
+    //     cmd.Parameters.AddWithValue(transacao.Tipo!);
+    //     cmd.Parameters.AddWithValue(transacao.Descricao);
+    //     cmd.Parameters.AddWithValue(id);
+    //     cmd.Parameters.AddWithValue(DateTime.UtcNow);
+
+    //     await cmd.ExecuteNonQueryAsync();
+    // }
+
+    // await using (var cmd = dataSource.CreateCommand())
+    // {
+    //     cmd.CommandText = @"
+    //                 UPDATE public.""Clientes""
+    //                 SET ""SaldoInicial"" = ""SaldoInicial"" + $2
+    //                 WHERE ""Id"" = $1
+    //                 AND (""SaldoInicial"" + $2 >= ""Limite"" * -1 OR $2 > 0);
+    //                 ";
+
+    //     var valorTransacao = transacao.Tipo == "c" ? transacao.Valor : transacao.Valor * -1;
+
+    //     cmd.Parameters.AddWithValue(id);
+    //     cmd.Parameters.AddWithValue(valorTransacao);
+
+    //     var success = await cmd.ExecuteNonQueryAsync() == 1;
+
+    //     if (!success)
+    //     {
+    //         return Results.UnprocessableEntity();
+    //     }
+    // }
+
+    // await using (var cmd = dataSource.CreateCommand())
+    // {
+    //     cmd.CommandText = @"
+    //                         SELECT ""Id"", ""Limite"", ""SaldoInicial"" AS Saldo
+    //                         FROM public.""Clientes""
+    //                         WHERE ""Id"" = $1;
+    //                         ";
+
+    //     cmd.Parameters.AddWithValue(id);
+
+    //     using var reader = await cmd.ExecuteReaderAsync();
+    //     await reader.ReadAsync();
+
+    //     var cliente = new ClienteDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2));
+
+    //     return Results.Ok(cliente); 
+    // }
+
+    if (!clientes.TryGetValue(id, out int limite))
         return Results.NotFound();
 
     if (!transacao.Valida())
@@ -140,58 +206,22 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
 
     await using (var cmd = dataSource.CreateCommand())
     {
-        cmd.CommandText = @"
-                            INSERT INTO public.""Transacoes"" (""Valor"", ""Tipo"", ""Descricao"", ""ClienteId"", ""RealizadoEm"")
-                            VALUES ($1, $2, $3, $4, $5);
-                            ";
-
-        cmd.Parameters.AddWithValue(transacao.Valor);
-        cmd.Parameters.AddWithValue(transacao.Tipo!);
-        cmd.Parameters.AddWithValue(transacao.Descricao);
-        cmd.Parameters.AddWithValue(id);
-        cmd.Parameters.AddWithValue(DateTime.UtcNow);
-
-        await cmd.ExecuteNonQueryAsync();
-    }
-
-    await using (var cmd = dataSource.CreateCommand())
-    {
-        cmd.CommandText = @"
-                    UPDATE public.""Clientes""
-                    SET ""SaldoInicial"" = ""SaldoInicial"" + $2
-                    WHERE ""Id"" = $1
-                    AND (""SaldoInicial"" + $2 >= ""Limite"" * -1 OR $2 > 0);
-                    ";
-
         var valorTransacao = transacao.Tipo == "c" ? transacao.Valor : transacao.Valor * -1;
-
+        
+        cmd.CommandText = "SELECT InsertTransacao($1, $2, $3, $4)";
         cmd.Parameters.AddWithValue(id);
         cmd.Parameters.AddWithValue(valorTransacao);
-
-        var success = await cmd.ExecuteNonQueryAsync() == 1;
-
-        if (!success)
-        {
-            return Results.UnprocessableEntity();
-        }
-    }
-
-    await using (var cmd = dataSource.CreateCommand())
-    {
-        cmd.CommandText = @"
-                            SELECT ""Id"", ""Limite"", ""SaldoInicial"" AS Saldo
-                            FROM public.""Clientes""
-                            WHERE ""Id"" = $1;
-                            ";
-
-        cmd.Parameters.AddWithValue(id);
+        cmd.Parameters.AddWithValue(transacao.Tipo);
+        cmd.Parameters.AddWithValue(transacao.Descricao);
 
         using var reader = await cmd.ExecuteReaderAsync();
-        await reader.ReadAsync();
 
-        var cliente = new ClienteDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2));
+        if (!await reader.ReadAsync())
+            return Results.UnprocessableEntity();
 
-        return Results.Ok(cliente); 
+        var updatedSaldo = reader.GetInt32(0);
+
+        return Results.Ok(new ClienteDto(id, limite, updatedSaldo)); 
     }
 });
 
@@ -201,7 +231,7 @@ app.Run();
 [JsonSerializable(typeof(ExtratoDto))]
 [JsonSerializable(typeof(SaldoDto))]
 [JsonSerializable(typeof(TransacaoDto))]
-[JsonSerializable(typeof(List<TransacaoDto>))]
+// [JsonSerializable(typeof(List<TransacaoDto>))]
 internal partial class SourceGenerationContext : JsonSerializerContext { }
 
 internal readonly record struct ClienteDto(int Id, int Limite, int Saldo);

@@ -6,11 +6,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- AOT Optimizations -->
-        <PublishAot>false</PublishAot>
+        <PublishAot>true</PublishAot>
         <OptimizationPreference>Speed</OptimizationPreference>
-
+		
 		<!-- Trim Optimizations -->
-		<PublishTrimmed>false</PublishTrimmed>
+		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>		
         <PublishReadyToRun>true</PublishReadyToRun>
  		<SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>

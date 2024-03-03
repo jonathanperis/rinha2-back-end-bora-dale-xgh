@@ -87,15 +87,46 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- CREATE OR REPLACE FUNCTION public.GetUltimasTransacoes(IN id INTEGER)
+-- RETURNS TEXT AS $$
+-- BEGIN
+--   RETURN (SELECT json_agg(t) FROM (
+--     SELECT "Valor" AS Valor, "Tipo" AS Tipo, "Descricao" AS Descricao, "RealizadoEm" AS RealizadoEm
+--     FROM public."Transacoes"
+--     WHERE "ClienteId" = $1
+--     ORDER BY "Id" DESC
+--     LIMIT 10
+--   ) AS t);
+-- END;
+-- $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION public.GetUltimasTransacoes(IN id INTEGER)
-RETURNS TEXT AS $$
+RETURNS TABLE (
+    Valor INTEGER,
+    Tipo varchar(1),
+    Descricao text,
+    RealizadoEm TIMESTAMP
+  ) AS $$BEGIN
+  RETURN QUERY
+  SELECT "Valor" AS Valor, "Tipo" AS Tipo, "Descricao" AS Descricao, "RealizadoEm" AS RealizadoEm
+  FROM public."Transacoes"
+  WHERE "ClienteId" = $1
+  ORDER BY "Id" DESC
+  LIMIT 10;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION public.InsertTransacao(IN id INTEGER, IN valor INTEGER, IN tipo VARCHAR(1), IN descricao VARCHAR(10))
+RETURNS INTEGER AS $$
 BEGIN
-  RETURN (SELECT json_agg(t) FROM (
-    SELECT "Valor" AS Valor, "Tipo" AS Tipo, "Descricao" AS Descricao, "RealizadoEm" AS RealizadoEm
-    FROM public."Transacoes"
-    WHERE "ClienteId" = $1
-    ORDER BY "Id" DESC
-    LIMIT 10
-  ) AS t);
+  INSERT INTO public."Transacoes" ("Valor", "Tipo", "Descricao", "ClienteId", "RealizadoEm")
+  VALUES ($2, $3, $4, $1, NOW());
+
+  UPDATE public."Clientes"
+  SET "SaldoInicial" = "SaldoInicial" + ($2 * CASE WHEN $3 = 'c' THEN 1 ELSE -1 END)
+  WHERE "Id" = $1
+  AND ("SaldoInicial" + ($2 * CASE WHEN $3 = 'c' THEN 1 ELSE -1 END) >= "Limite" * -1 OR $2 * CASE WHEN $3 = 'c' THEN 1 ELSE -1 END > 0);
+ 
+  RETURN (SELECT "SaldoInicial" FROM public."Clientes" WHERE "Id" = $1);
 END;
 $$ LANGUAGE plpgsql;
