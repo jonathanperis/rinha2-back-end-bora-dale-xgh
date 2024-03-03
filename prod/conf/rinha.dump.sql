@@ -80,25 +80,28 @@ CREATE OR REPLACE FUNCTION public.GetSaldoClienteById(IN id INTEGER)
 RETURNS TABLE (
     Total INTEGER,
     Limite INTEGER,
-    data_extrato TIMESTAMP
+    data_extrato TIMESTAMP,
+    transacoes JSON
 ) AS $$
 BEGIN
-  RETURN QUERY SELECT "SaldoInicial" AS Total, "Limite" AS Limite, NOW()::timestamp AS data_extrato FROM public."Clientes" WHERE "Id" = $1;
+  RETURN QUERY 
+  SELECT c."SaldoInicial" AS Total, 
+	     c."Limite" AS Limite, 
+	     NOW()::timestamp AS data_extrato,
+	     COALESCE(json_agg(t) FILTER (WHERE t."ClienteId" IS NOT NULL), '[]') AS transacoes
+  FROM public."Clientes" c
+  LEFT JOIN (
+    SELECT "ClienteId", "Valor", "Tipo", "Descricao", "RealizadoEm"
+    FROM public."Transacoes"
+    WHERE "ClienteId" = $1
+    ORDER BY "Id" DESC
+    LIMIT 10
+  ) t ON (c."Id" = t."ClienteId")
+  WHERE "Id" = $1
+  GROUP BY 
+    c."SaldoInicial", c."Limite";
 END;
 $$ LANGUAGE plpgsql;
-
--- CREATE OR REPLACE FUNCTION public.GetUltimasTransacoes(IN id INTEGER)
--- RETURNS TEXT AS $$
--- BEGIN
---   RETURN (SELECT json_agg(t) FROM (
---     SELECT "Valor" AS Valor, "Tipo" AS Tipo, "Descricao" AS Descricao, "RealizadoEm" AS RealizadoEm
---     FROM public."Transacoes"
---     WHERE "ClienteId" = $1
---     ORDER BY "Id" DESC
---     LIMIT 10
---   ) AS t);
--- END;
--- $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION public.GetUltimasTransacoes(IN id INTEGER)
 RETURNS TABLE (
