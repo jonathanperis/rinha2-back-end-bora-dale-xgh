@@ -96,12 +96,49 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
     //     }
 
     //     return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));      
-    // }   
+    // }
+
+    // ---------------------------------------
+
+    // if (!clientes.ContainsKey(id))
+    //     return Results.NotFound();
+
+    // SaldoDto saldo;
+
+    // await using (var cmd = dataSource.CreateCommand())
+    // {
+    //     cmd.CommandText = "SELECT * FROM GetSaldoClienteById($1)";
+    //     cmd.Parameters.AddWithValue(id);
+
+    //     using var reader = await cmd.ExecuteReaderAsync();
+
+    //     if (!await reader.ReadAsync())
+    //         return Results.NotFound();
+
+    //     saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetDateTime(2));
+    // }
+
+    // await using (var cmd = dataSource.CreateCommand())
+    // {
+    //     cmd.CommandText = "SELECT * FROM GetUltimasTransacoes($1)";
+    //     cmd.Parameters.AddWithValue(id);
+
+    //     using var reader = await cmd.ExecuteReaderAsync();
+
+    //     var ultimasTransacoes = new List<TransacaoDto>();
+
+    //     while (await reader.ReadAsync())
+    //     {
+    //         ultimasTransacoes.Add(new TransacaoDto(reader.GetInt32(0), reader.GetString(1), reader.GetString(2)));
+    //     }
+
+    //     return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));
+    // }
+
+    // ---------------------------------------
 
     if (!clientes.ContainsKey(id))
         return Results.NotFound();
-
-    SaldoDto saldo;
 
     await using (var cmd = dataSource.CreateCommand())
     {
@@ -113,24 +150,10 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
         if (!await reader.ReadAsync())
             return Results.NotFound();
 
-        saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetDateTime(2));
-    }
+        var saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetDateTime(2));
+        var extrato = new ExtratoDto(saldo, JsonSerializer.Deserialize<List<TransacaoDto>>(reader.GetString(3)));
 
-    await using (var cmd = dataSource.CreateCommand())
-    {
-        cmd.CommandText = "SELECT * FROM GetUltimasTransacoes($1)";
-        cmd.Parameters.AddWithValue(id);
-
-        using var reader = await cmd.ExecuteReaderAsync();
-
-        var ultimasTransacoes = new List<TransacaoDto>();
-
-        while (await reader.ReadAsync())
-        {
-            ultimasTransacoes.Add(new TransacaoDto(reader.GetInt32(0), reader.GetString(1), reader.GetString(2)));
-        }
-
-        return Results.Ok(new ExtratoDto(saldo, ultimasTransacoes));
+        return Results.Ok(extrato);
     }
 });
 
@@ -201,7 +224,7 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
     if (!clientes.TryGetValue(id, out int limite))
         return Results.NotFound();
 
-    if (!transacao.Valida())
+    if (!IsTransacaoValid(transacao))
         return Results.UnprocessableEntity();
 
     await using (var cmd = dataSource.CreateCommand())
@@ -225,25 +248,23 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
 
 app.Run();
 
+static bool IsTransacaoValid(TransacaoDto transacao)
+{
+    string[] tipoTransacao = ["c", "d"];
+
+    return tipoTransacao.Contains(transacao.Tipo)
+        && !string.IsNullOrEmpty(transacao.Descricao)
+        && transacao.Descricao.Length <= 10
+        && transacao.Valor > 0;
+}
+
 [JsonSerializable(typeof(ClienteDto))]
 [JsonSerializable(typeof(ExtratoDto))]
 [JsonSerializable(typeof(SaldoDto))]
 [JsonSerializable(typeof(TransacaoDto))]
-// [JsonSerializable(typeof(List<TransacaoDto>))]
 internal partial class SourceGenerationContext : JsonSerializerContext { }
 
 internal readonly record struct ClienteDto(int Id, int Limite, int Saldo);
 internal readonly record struct ExtratoDto(SaldoDto Saldo, List<TransacaoDto>? ultimas_transacoes);
 internal readonly record struct SaldoDto(int Total, int Limite, DateTime data_extrato);
-internal readonly record struct TransacaoDto(int Valor, string Tipo, string Descricao)
-{
-    private readonly static string[] tipoTransacao = ["c", "d"];
-
-    public bool Valida()
-    {
-        return tipoTransacao.Contains(Tipo)
-            && !string.IsNullOrEmpty(Descricao)
-            && Descricao.Length <= 10
-            && Valor > 0;
-    }
-}
+internal readonly record struct TransacaoDto(int ClienteId, int Valor, string Tipo, string Descricao);

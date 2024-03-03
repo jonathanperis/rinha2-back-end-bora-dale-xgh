@@ -5,30 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 
-		<!-- AOT Optimizations -->
-        <PublishAot>true</PublishAot>
-        <OptimizationPreference>Speed</OptimizationPreference>
-		
-		<!-- Trim Optimizations -->
-		<PublishTrimmed>true</PublishTrimmed>
-		<TrimMode>partial</TrimMode>		
-        <PublishReadyToRun>true</PublishReadyToRun>
- 		<SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
-        <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
-        <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
 
-		<!-- Extra Optimizations -->
-        <DebuggerSupport>false</DebuggerSupport>
-        <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-        <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
-        <EventSourceSupport>false</EventSourceSupport>
-        <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
-        <InvariantGlobalization>true</InvariantGlobalization>
-        <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
-        <StackTraceSupport>false</StackTraceSupport>
-        <UseSystemResourceKeys>true</UseSystemResourceKeys>
-        <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
-        <SelfContained>true</SelfContained>
 		
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>..\..</DockerfileContext>
