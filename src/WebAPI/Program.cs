@@ -205,12 +205,10 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transac
         return Results.UnprocessableEntity();
 
     await using (var cmd = dataSource.CreateCommand())
-    {
-        var valorTransacao = transacao.Tipo == "c" ? transacao.Valor : transacao.Valor * -1;
-        
+    {      
         cmd.CommandText = "SELECT InsertTransacao($1, $2, $3, $4)";
         cmd.Parameters.AddWithValue(id);
-        cmd.Parameters.AddWithValue(valorTransacao);
+        cmd.Parameters.AddWithValue(transacao.Valor);
         cmd.Parameters.AddWithValue(transacao.Tipo);
         cmd.Parameters.AddWithValue(transacao.Descricao);
 
