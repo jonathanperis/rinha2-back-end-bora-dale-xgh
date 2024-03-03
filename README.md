@@ -23,4 +23,14 @@ docker-compose up -d nginx
 
 ## Resultados
 
-![Resultados do gatling. Todas requisições abaixo de 800ms.](docs/gatling.png)
+![Resultados do Gatling. Todas requisições abaixo de 800ms. (Estes testes utilizaram um máximo de 250MB RAM distribuidos entre os recursos. 60% menos recurso de memória RAM do que o permitido pela rinha!)](docs/gatling.png)
+
+## Métricas dos testes
+
+![Banco de dados)](docs/metrica-banco-de-dados.jpeg)
+
+![Endpoint 1 da API)](docs/metrica-api-endpoint-1.jpeg)
+
+![Endpoint 1 da API)](docs/metrica-api-endpoint-2.jpeg)
+
+![Proxy reverso)](docs/metrica-proxy-reverso.jpeg)
