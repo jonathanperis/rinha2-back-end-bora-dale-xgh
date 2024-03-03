@@ -31,10 +31,16 @@ Resultados do Gatling. Todas requisições abaixo de 800ms. (Estes testes utiliz
 
 Métricas colhidas no Docker Desktop após a execução do teste. O teste foi executado em um Mac Mini M1 16GB RAM/512GB SSD.
 
+- Banco de dados (Postgresql)
+
 ![Banco de dados)](docs/metrica-banco-de-dados.jpeg)
+
+- Endpoints (.NET)
 
 ![Endpoint 1 da API)](docs/metrica-api-endpoint-1.jpeg)
 
 ![Endpoint 1 da API)](docs/metrica-api-endpoint-2.jpeg)
+
+- Proxy reverso (Nginx)
 
 ![Proxy reverso)](docs/metrica-proxy-reverso.jpeg)
