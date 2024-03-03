@@ -76,17 +76,6 @@ CREATE INDEX "IX_Transacoes_ClienteId" ON public."Transacoes" USING btree ("Clie
 ALTER TABLE ONLY public."Transacoes"
     ADD CONSTRAINT "FK_Transacoes_Clientes_ClienteId" FOREIGN KEY ("ClienteId") REFERENCES public."Clientes"("Id") ON DELETE CASCADE;
 
--- CREATE OR REPLACE FUNCTION public.GetSaldoClienteById(IN id INTEGER)
--- RETURNS TABLE (
---     Total INTEGER,
---     Limite INTEGER,
---     data_extrato TIMESTAMP
--- ) AS $$
--- BEGIN
---   RETURN QUERY SELECT "SaldoInicial" AS Total, "Limite" AS Limite, NOW()::timestamp AS data_extrato FROM public."Clientes" WHERE "Id" = $1;
--- END;
--- $$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION public.GetSaldoClienteById(IN id INTEGER)
 RETURNS TABLE (
     Total INTEGER,
@@ -95,7 +84,11 @@ RETURNS TABLE (
     transacoes JSON
 ) AS $$
 BEGIN
-  RETURN QUERY SELECT c."SaldoInicial" AS Total, c."Limite" AS Limite, NOW()::timestamp AS data_extrato, json_agg(t) AS transacoes
+  RETURN QUERY 
+  SELECT c."SaldoInicial" AS Total, 
+	     c."Limite" AS Limite, 
+	     NOW()::timestamp AS data_extrato,
+	     COALESCE(json_agg(t) FILTER (WHERE t."ClienteId" IS NOT NULL), '[]') AS transacoes
   FROM public."Clientes" c
   LEFT JOIN (
     SELECT "ClienteId", "Valor", "Tipo", "Descricao", "RealizadoEm"
@@ -104,6 +97,7 @@ BEGIN
     ORDER BY "Id" DESC
     LIMIT 10
   ) t ON (c."Id" = t."ClienteId")
+  WHERE "Id" = $1
   GROUP BY 
     c."SaldoInicial", c."Limite";
 END;

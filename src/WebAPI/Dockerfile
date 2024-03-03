@@ -12,25 +12,25 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     clang zlib1g-dev
 
+ARG AOT=true
+ARG Trim=false
+ARG ExtraOptimize=true
+
 ARG BUILD_CONFIGURATION=Release
 
 WORKDIR /src
 
 COPY ["src/WebAPI/WebAPI.csproj", "src/WebAPI/"]
 
-RUN dotnet restore "./src/WebAPI/./WebAPI.csproj"
+RUN dotnet restore -r linux-x64 "./src/WebAPI/./WebAPI.csproj" -p:Configuration=Release -p:AOT=${AOT} -p:Trim=${Trim}
 
 COPY . .
 
 WORKDIR "/src/src/WebAPI"
 
-RUN dotnet build "./WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
-
 FROM build AS publish
 
-ARG BUILD_CONFIGURATION=Release
-
-RUN dotnet publish -r linux-x64 "./WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish --self-contained
+RUN dotnet publish -r linux-x64 "./WebAPI.csproj" --no-restore -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${Trim} -p:ExtraOptimize=${ExtraOptimize} -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0 AS final
 
