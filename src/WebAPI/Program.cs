@@ -48,11 +48,11 @@ app.MapPrometheusScrapingEndpoint();
 
 var clientes = new Dictionary<int, int>
 {
-    {1,   1000 * 100},
-    {2,    800 * 100},
-    {3,  10000 * 100},
-    {4, 100000 * 100},
-    {5,   5000 * 100}
+    { 1, 100000 }, 
+    { 2, 80000 }, 
+    { 3, 1000000 }, 
+    { 4, 10000000 }, 
+    { 5, 500000 }
 };
 
 #if !EXTRAOPTIMIZE
