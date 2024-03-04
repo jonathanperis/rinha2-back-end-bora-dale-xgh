@@ -81,7 +81,7 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
     }
 });
 
-app.MapPost("/clientes/{id:int}/transacoes", async (int id, TransacaoDto transacao, NpgsqlDataSource dataSource) =>
+app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] TransacaoDto transacao, [FromServices] NpgsqlDataSource dataSource) =>
 {
     if (!clientes.TryGetValue(id, out int limite))
         return Results.NotFound();
