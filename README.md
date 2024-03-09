@@ -27,7 +27,7 @@ docker-compose up -d nginx
 
 ![Gatling-Prod](docs/gatling-prod.jpeg)
 
-### Resultado do Gatling local (e métricas do teste)
+### Resultado do Gatling local
 
 Todas requisições abaixo de 800ms. (Estes testes utilizaram um máximo de 250MB RAM distribuidos entre os recursos. 60% menos recurso de memória RAM do que o permitido pela rinha!
 
