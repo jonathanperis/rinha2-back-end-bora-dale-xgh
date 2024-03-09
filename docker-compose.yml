@@ -18,7 +18,7 @@ services:
       resources:
         limits:
           cpus: "0.4"
-          memory: "200MB"
+          memory: "100MB"
   
   webapi2:
     <<: *webapi1
@@ -32,19 +32,19 @@ services:
     restart: always
     depends_on:
       - postgres-exporter      
-    ports:
-      - "5432:5432"
     volumes:
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: rinha
+    ports:
+      - "5432:5432"      
     deploy:
       resources:
         limits:
           cpus: "0.5"
-          memory: "130MB"
+          memory: "330MB"
     command: postgres -c checkpoint_timeout=600 -c max_wal_size=4096 -c synchronous_commit=0 -c fsync=0 -c full_page_writes=0
 
   nginx:
@@ -65,7 +65,7 @@ services:
           memory: "20MB"
 
   postgres-exporter:
-    image: prometheuscommunity/postgres-exporter
+    image: prometheuscommunity/postgres-exporter  
     ports:
       - 9187:9187
     environment:
@@ -79,7 +79,7 @@ services:
       - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
 
   grafana:
-      image: grafana/grafana-oss
+      image: grafana/grafana-oss   
       ports:
         - "3000:3000"
       volumes:
@@ -88,6 +88,17 @@ services:
         - "./grafana/dashboards/:/var/lib/grafana/dashboards/"
       depends_on:
         - prometheus
+
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - db    
+    ports:
+      - "5050:5050"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+      PGADMIN_LISTEN_PORT: 5050
 
 networks: 
   default:
