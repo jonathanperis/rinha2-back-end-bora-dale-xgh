@@ -9,7 +9,7 @@ services:
       - db
     restart: always      
     environment:
-      - ASPNETCORE_URLS: http://*:8080
+      - ASPNETCORE_URLS=http://*:8080
       - ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
     network_mode: host
     deploy:
@@ -23,7 +23,7 @@ services:
     hostname: webapi2
     container_name: webapi-2
     environment:
-      - ASPNETCORE_URLS: http://*:8081
+      - ASPNETCORE_URLS=http://*:8081
       - ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
 
   db:
