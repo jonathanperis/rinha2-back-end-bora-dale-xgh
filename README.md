@@ -21,9 +21,15 @@ Esta versão é uma versão derivada da minha [versão API com cara de API](http
 docker-compose up -d nginx
 ```
 
-# Resultados
+## Resultados
 
-Resultados do Gatling. Todas requisições abaixo de 800ms. (Estes testes utilizaram um máximo de 250MB RAM distribuidos entre os recursos. 60% menos recurso de memória RAM do que o permitido pela rinha!
+### Resultado do Gatling em produção
+
+![Gatling-Prod](docs/gatling-prod.png)
+
+### Resultado do Gatling local (e métricas do teste)
+
+Todas requisições abaixo de 800ms. (Estes testes utilizaram um máximo de 250MB RAM distribuidos entre os recursos. 60% menos recurso de memória RAM do que o permitido pela rinha!
 
 ![Gatling](docs/gatling.png)
 
