@@ -23,9 +23,9 @@ docker-compose up -d nginx
 
 ## Resultados
 
-### Resultado do Gatling em produção
+### Resultado do Gatling em produção (sim, é só dotnet. Mas eu gosto! XD)
 
-![Gatling-Prod](docs/gatling-prod.jpeg)
+![Gatling-Prod](docs/gatling-prod.png)
 
 ### Resultado do Gatling local
 
