@@ -68,6 +68,7 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
     {
         cmd.CommandText = "SELECT * FROM GetSaldoClienteById($1)";
         cmd.Parameters.AddWithValue(id);
+        cmd.Prepare();
 
         using var reader = await cmd.ExecuteReaderAsync();
 
@@ -96,7 +97,8 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] Transacao
         cmd.Parameters.AddWithValue(transacao.Valor);
         cmd.Parameters.AddWithValue(transacao.Tipo);
         cmd.Parameters.AddWithValue(transacao.Descricao);
-
+        cmd.Prepare();
+        
         using var reader = await cmd.ExecuteReaderAsync();
 
         if (!await reader.ReadAsync())
@@ -112,9 +114,7 @@ app.Run();
 
 static bool IsTransacaoValid(TransacaoDto transacao)
 {
-    string[] tipoTransacao = ["c", "d"];
-
-    return tipoTransacao.Contains(transacao.Tipo)
+    return (transacao.Tipo == "c" || transacao.Tipo == "d")
         && !string.IsNullOrEmpty(transacao.Descricao)
         && transacao.Descricao.Length <= 10
         && transacao.Valor > 0;
