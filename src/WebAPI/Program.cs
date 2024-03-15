@@ -68,7 +68,6 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
     {
         cmd.CommandText = "SELECT * FROM GetSaldoClienteById($1)";
         cmd.Parameters.AddWithValue(id);
-        cmd.Prepare();
 
         using var reader = await cmd.ExecuteReaderAsync();
 
@@ -97,7 +96,6 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] Transacao
         cmd.Parameters.AddWithValue(transacao.Valor);
         cmd.Parameters.AddWithValue(transacao.Tipo);
         cmd.Parameters.AddWithValue(transacao.Descricao);
-        cmd.Prepare();
         
         using var reader = await cmd.ExecuteReaderAsync();
 
