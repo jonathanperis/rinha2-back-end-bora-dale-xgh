@@ -112,7 +112,9 @@ app.Run();
 
 static bool IsTransacaoValid(TransacaoDto transacao)
 {
-    return (transacao.Tipo == "c" || transacao.Tipo == "d")
+    string[] tipoTransacao = ["c", "d"];
+
+    return tipoTransacao.Contains(transacao.Tipo)
         && !string.IsNullOrEmpty(transacao.Descricao)
         && transacao.Descricao.Length <= 10
         && transacao.Valor > 0;
