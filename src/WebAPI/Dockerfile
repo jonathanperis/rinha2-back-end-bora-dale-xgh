@@ -22,7 +22,7 @@ WORKDIR /src
 
 COPY ["src/WebAPI/WebAPI.csproj", "src/WebAPI/"]
 
-RUN dotnet restore -r linux-arm64 "./src/WebAPI/./WebAPI.csproj" -p:Configuration=Release -p:AOT=${AOT} -p:Trim=${Trim}
+RUN dotnet restore -r linux-x64 "./src/WebAPI/./WebAPI.csproj" -p:Configuration=Release -p:AOT=${AOT} -p:Trim=${Trim}
 
 COPY . .
 
@@ -30,7 +30,7 @@ WORKDIR "/src/src/WebAPI"
 
 FROM build AS publish
 
-RUN dotnet publish -r linux-arm64 "./WebAPI.csproj" --no-restore -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${Trim} -p:ExtraOptimize=${ExtraOptimize} -o /app/publish
+RUN dotnet publish -r linux-x64 "./WebAPI.csproj" --no-restore -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${Trim} -p:ExtraOptimize=${ExtraOptimize} -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0 AS final
 

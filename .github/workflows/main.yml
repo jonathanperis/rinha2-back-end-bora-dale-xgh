@@ -78,7 +78,7 @@ jobs:
         context: .
         push: true
         file: ./src/WebAPI/Dockerfile
-        tags: jonathanperis/rinha2-back-end-bora-dale-xgh-arm64:latest
+        tags: jonathanperis/rinha2-back-end-bora-dale-xgh:latest
 
   container-test:
     runs-on: ubuntu-latest
