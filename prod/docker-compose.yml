@@ -44,7 +44,6 @@ services:
           cpus: "0.5"
           memory: "330MB"
     command: postgres -c checkpoint_timeout=600 -c max_wal_size=4096 -c synchronous_commit=0 -c fsync=0 -c full_page_writes=0
-    # command: postgres -c 'max_connections=64' -c 'shared_buffers=280MB'
 
   nginx:
     image: nginx
