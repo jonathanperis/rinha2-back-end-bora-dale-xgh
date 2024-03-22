@@ -96,7 +96,7 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] Transacao
         cmd.Parameters.AddWithValue(transacao.Valor);
         cmd.Parameters.AddWithValue(transacao.Tipo);
         cmd.Parameters.AddWithValue(transacao.Descricao);
-        
+
         using var reader = await cmd.ExecuteReaderAsync();
 
         if (!await reader.ReadAsync())
