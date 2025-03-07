@@ -14,7 +14,7 @@ services:
       args:
         AOT: true
         TRIM: false
-        EXTRA_OPTIMIZE: true
+        EXTRA_OPTIMIZE: false
         BUILD_ARCHITECTURE: linux-arm64
         BUILD_CONFIGURATION: Release      
     hostname: webapi1
@@ -103,7 +103,6 @@ services:
     - network-bora-dale-xgh
 
   grafana:
-    # image: grafana/grafana-oss
     image: grafana/grafana
     container_name: grafana-rinha
     environment:
@@ -135,7 +134,6 @@ services:
   #   - network-bora-dale-xgh
 
   k6:
-    # image: grafana/k6
     build:
       context: ./test/
       dockerfile: ./stress-test/Dockerfile    
@@ -144,7 +142,6 @@ services:
       - BASE_URL=http://nginx:9999
       - K6_WEB_DASHBOARD=true
       - K6_INFLUXDB_ADDR=http://influxdb:8086
-      # - K6_OUT=xk6-influxdb=http://influxdb:8086
       - K6_INFLUXDB_ORGANIZATION=rinha
       - K6_INFLUXDB_BUCKET=demo
       - K6_INFLUXDB_INSECURE=true
