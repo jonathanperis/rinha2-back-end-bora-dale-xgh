@@ -1,5 +1,10 @@
 name: 'rinha2-jonathanperis-xgh'
 
+# networks:
+#   k6:
+#   grafana:
+#   influxdb:
+
 services:
   webapi1: &webapi1
     # image: jonathanperis/rinha2-back-end-bora-dale-xgh:latest
@@ -103,7 +108,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # https://grafana.com/docs/grafana/latest/administration/provisioning/
       - "./grafana/provisioning/:/etc/grafana/provisioning/"
       - "./grafana/dashboards/:/var/lib/grafana/dashboards/"
     depends_on:
@@ -111,19 +115,66 @@ services:
     networks:
     - network-bora-dale-xgh
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin-rinha
-    depends_on:
-      - db    
-    ports:
-      - "5050:5050"
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin-rinha
+  #   depends_on:
+  #     - db    
+  #   ports:
+  #     - "5050:5050"
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+  #     PGADMIN_DEFAULT_PASSWORD: "admin"
+  #     PGADMIN_LISTEN_PORT: 5050
+  #   networks:
+  #   - network-bora-dale-xgh
+
+  k6:
+    # image: grafana/k6
+    build:
+      context: ./test/
+      dockerfile: ./stress-test/Dockerfile    
+    container_name: k6
     environment:
-      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
-      PGADMIN_DEFAULT_PASSWORD: "admin"
-      PGADMIN_LISTEN_PORT: 5050
+      - BASE_URL=http://nginx:9999
+      - K6_WEB_DASHBOARD=true
+      - K6_INFLUXDB_ADDR=http://influxdb:8086
+      - K6_INFLUXDB_ORGANIZATION=organization
+      - K6_INFLUXDB_BUCKET=bucket
+      - K6_INFLUXDB_INSECURE=true
+      - K6_INFLUXDB_TOKEN=EEKpryGZk8pVDXmIuy484BKUxM5jOEDv7YNoeNZUbsNbpbPbP6kK_qY9Zsyw7zNnlZ7pHG16FYzNaqwLMBUz8g==      
+    volumes:
+      - "./test/stress-test:/app"
+    working_dir: /app
+    tty: true
+    stdin_open: true
+    depends_on:
+      - nginx
+      - webapi1
+      - webapi2
+      - db
+      - grafana 
+      - influxdb      
+    entrypoint: ["/bin/sh", "/app/delay.sh"]
+    ports:
+      # - "5665:5665"
+      - "6565:6565"
     networks:
-    - network-bora-dale-xgh
+      - network-bora-dale-xgh
+
+  influxdb:
+    image: influxdb:2.0-alpine
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=VG3AfE!pz8x7
+      - DOCKER_INFLUXDB_INIT_ORG=organization
+      - DOCKER_INFLUXDB_INIT_BUCKET=bucket
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=EEKpryGZk8pVDXmIuy484BKUxM5jOEDv7YNoeNZUbsNbpbPbP6kK_qY9Zsyw7zNnlZ7pHG16FYzNaqwLMBUz8g==
+    networks:
+      - network-bora-dale-xgh
 
 networks:
   network-bora-dale-xgh:
@@ -133,4 +184,4 @@ volumes:
   db-rinha-data:
     driver: local
   prometheus-rinha-data:
-    driver: local    
+    driver: local

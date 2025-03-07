@@ -2,6 +2,8 @@ import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { SharedArray } from 'k6/data';
 
+const baseUrl = __ENV.BASE_URL || "http://localhost:9999";
+
 // Helper functions
 const randomClienteId = () => Math.floor(Math.random() * 5) + 1;
 const randomValorTransacao = () => Math.floor(Math.random() * 10000) + 1;
@@ -12,10 +14,7 @@ const randomDescricao = () => {
 
 // Validation function
 const validateSaldoLimite = (saldo, limite) => {
-  if (saldo < limite * -1) {
-    return false;
-  }
-  return true;
+  return saldo >= limite * -1;
 };
 
 // Shared initial client data
@@ -27,9 +26,6 @@ const saldosIniciaisClientes = new SharedArray('clientes', () => [
   { id: 5, limite: 5000 * 100 },
 ]);
 
-const baseUrl = 'http://localhost:9999';
-
-// Main scenarios
 export const options = {
   scenarios: {
     debitos: {
@@ -92,10 +88,16 @@ export function debitos() {
   });
 
   if (res.status === 200) {
-    const limite = res.json('limite');
-    const saldo = res.json('saldo');
-    check(null, {
-      'Consistência saldo/limite': () => validateSaldoLimite(saldo, limite),
+    check(res, {
+      'Consistência saldo/limite': (r) => {
+        try {
+          const saldo = r.json('saldo');
+          const limite = r.json('limite');
+          return validateSaldoLimite(saldo, limite);
+        } catch (e) {
+          return false;
+        }
+      }
     });
   }
 }
@@ -115,8 +117,21 @@ export function creditos() {
 
   check(res, {
     'status 200': (r) => r.status === 200,
-    'Consistência saldo/limite': (r) => validateSaldoLimite(r.json('saldo'), r.json('limite')),
   });
+
+  if (res.status === 200) {
+    check(res, {
+      'Consistência saldo/limite': (r) => {
+        try {
+          const saldo = r.json('saldo');
+          const limite = r.json('limite');
+          return validateSaldoLimite(saldo, limite);
+        } catch (e) {
+          return false;
+        }
+      }
+    });
+  }
 }
 
 export function extratos() {
@@ -124,11 +139,22 @@ export function extratos() {
   
   check(res, {
     'status 200': (r) => r.status === 200,
-    'Consistência extrato': (r) => validateSaldoLimite(
-      r.json('saldo.total'),
-      r.json('saldo.limite')
-    ),
   });
+
+  if (res.status === 200) {
+    check(res, {
+      'Consistência extrato': (r) => {
+        try {
+          return validateSaldoLimite(
+            r.json('saldo.total'),
+            r.json('saldo.limite')
+          );
+        } catch (e) {
+          return false;
+        }
+      }
+    });
+  }
 }
 
 export function validacoes() {
@@ -136,7 +162,6 @@ export function validacoes() {
   const cliente = saldosIniciaisClientes[index];
   
   group('Validações cliente', () => {
-    // Initial checks
     let res = http.get(`${baseUrl}/clientes/${cliente.id}/extrato`);
     check(res, {
       'status 200': (r) => r.status === 200,
@@ -144,7 +169,6 @@ export function validacoes() {
       'saldo inicial 0': (r) => r.json('saldo.total') === 0,
     });
 
-    // Test transactions
     ['c', 'd'].forEach((tipo) => {
       res = http.post(
         `${baseUrl}/clientes/${cliente.id}/transacoes`,
@@ -158,7 +182,6 @@ export function validacoes() {
       });
     });
 
-    // Verify statement
     res = http.get(`${baseUrl}/clientes/${cliente.id}/extrato`);
     check(res, {
       'transações recentes': (r) => {
@@ -170,7 +193,6 @@ export function validacoes() {
       },
     });
 
-    // Invalid requests
     const invalidRequests = [
       { valor: 1.2, tipo: 'd', descricao: 'devolve', expectedStatus: 422 },
       { valor: 1, tipo: 'x', descricao: 'devolve', expectedStatus: 422 },
