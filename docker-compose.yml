@@ -103,8 +103,13 @@ services:
     - network-bora-dale-xgh
 
   grafana:
-    image: grafana/grafana-oss
+    # image: grafana/grafana-oss
+    image: grafana/grafana
     container_name: grafana-rinha
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
     ports:
       - "3000:3000"
     volumes:
