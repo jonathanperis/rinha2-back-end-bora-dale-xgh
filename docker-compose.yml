@@ -1,12 +1,17 @@
-version: '3.9'
 name: 'rinha2-jonathanperis-xgh'
 
 services:
   webapi1: &webapi1
     # image: jonathanperis/rinha2-back-end-bora-dale-xgh:latest
     build:
-      context: .
-      dockerfile: src/WebAPI/Dockerfile    
+      context: ./src/
+      dockerfile: ./WebAPI/Dockerfile
+      args:
+        AOT: true
+        TRIM: false
+        EXTRA_OPTIMIZE: true
+        BUILD_ARCHITECTURE: linux-arm64
+        BUILD_CONFIGURATION: Release      
     hostname: webapi1
     container_name: webapi-1
     depends_on:
@@ -19,7 +24,9 @@ services:
         limits:
           cpus: "0.4"
           memory: "100MB"
-  
+    networks:
+    - network-bora-dale-xgh
+
   webapi2:
     <<: *webapi1
     hostname: webapi2
@@ -33,6 +40,7 @@ services:
     depends_on:
       - postgres-exporter      
     volumes:
+      - db-rinha-data:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_USER: postgres
@@ -46,6 +54,8 @@ services:
           cpus: "0.5"
           memory: "330MB"
     command: postgres -c checkpoint_timeout=600 -c max_wal_size=4096 -c synchronous_commit=0 -c fsync=0 -c full_page_writes=0
+    networks:
+    - network-bora-dale-xgh
 
   nginx:
     image: nginx
@@ -63,34 +73,47 @@ services:
         limits:
           cpus: "0.2"
           memory: "20MB"
+    networks:
+    - network-bora-dale-xgh
 
   postgres-exporter:
-    image: prometheuscommunity/postgres-exporter  
+    image: prometheuscommunity/postgres-exporter 
+    container_name: postgres-exporter-rinha
     ports:
       - 9187:9187
     environment:
       DATA_SOURCE_NAME: "postgresql://postgres:postgres@db:5432/rinha?sslmode=disable"
+    networks:
+    - network-bora-dale-xgh
 
   prometheus:
     image: prom/prometheus
+    container_name: prometheus-rinha
     ports:
       - "9090:9090"
     volumes:
+      - prometheus-rinha-data:/prometheus
       - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    networks:
+    - network-bora-dale-xgh
 
   grafana:
-      image: grafana/grafana-oss   
-      ports:
-        - "3000:3000"
-      volumes:
-        # https://grafana.com/docs/grafana/latest/administration/provisioning/
-        - "./grafana/provisioning/:/etc/grafana/provisioning/"
-        - "./grafana/dashboards/:/var/lib/grafana/dashboards/"
-      depends_on:
-        - prometheus
+    image: grafana/grafana-oss
+    container_name: grafana-rinha
+    ports:
+      - "3000:3000"
+    volumes:
+      # https://grafana.com/docs/grafana/latest/administration/provisioning/
+      - "./grafana/provisioning/:/etc/grafana/provisioning/"
+      - "./grafana/dashboards/:/var/lib/grafana/dashboards/"
+    depends_on:
+      - prometheus
+    networks:
+    - network-bora-dale-xgh
 
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pgadmin-rinha
     depends_on:
       - db    
     ports:
@@ -99,8 +122,15 @@ services:
       PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
       PGADMIN_DEFAULT_PASSWORD: "admin"
       PGADMIN_LISTEN_PORT: 5050
+    networks:
+    - network-bora-dale-xgh
 
-networks: 
-  default:
+networks:
+  network-bora-dale-xgh:
     driver: bridge
-    name: network-bora-dale-xgh
+
+volumes:
+  db-rinha-data:
+    driver: local
+  prometheus-rinha-data:
+    driver: local    

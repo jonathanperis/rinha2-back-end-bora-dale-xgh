@@ -1,4 +1,4 @@
-version: '3.9'
+name: 'rinha2-jonathanperis-xgh-prod'
 
 services:
   webapi1: &webapi1

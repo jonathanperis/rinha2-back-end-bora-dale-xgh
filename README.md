@@ -6,7 +6,7 @@ Esta versão é uma versão derivada da minha [versão API com cara de API](http
 
 ## Stack
 
-- aspnet 8.0
+- aspnet 9.0
 - nginx
 - postgresql
 

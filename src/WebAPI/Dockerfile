@@ -1,38 +1,39 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
 LABEL maintainer "Jonathan Peris"
 
 USER app
 WORKDIR /app
-EXPOSE 8080
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     clang zlib1g-dev
 
-ARG AOT=true
-ARG Trim=false
-ARG ExtraOptimize=true
-
-ARG BUILD_CONFIGURATION=Release
+ARG AOT
+ARG TRIM
+ARG EXTRA_OPTIMIZE
+ARG BUILD_ARCHITECTURE
+ARG BUILD_CONFIGURATION
 
 WORKDIR /src
 
-COPY ["src/WebAPI/WebAPI.csproj", "src/WebAPI/"]
+COPY ["WebAPI/WebAPI.csproj", "WebAPI/"]
 
-RUN dotnet restore -r linux-x64 "./src/WebAPI/./WebAPI.csproj" -p:Configuration=Release -p:AOT=${AOT} -p:Trim=${Trim}
+RUN dotnet restore -r $BUILD_ARCHITECTURE "./WebAPI/WebAPI.csproj" -p:Configuration=${BUILD_CONFIGURATION} -p:AOT=${AOT} -p:Trim=${TRIM}
 
 COPY . .
 
-WORKDIR "/src/src/WebAPI"
+WORKDIR "/src/WebAPI"
+
+RUN dotnet build -r $BUILD_ARCHITECTURE "WebAPI.csproj" -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/build
 
 FROM build AS publish
 
-RUN dotnet publish -r linux-x64 "./WebAPI.csproj" --no-restore -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${Trim} -p:ExtraOptimize=${ExtraOptimize} -o /app/publish
+RUN dotnet publish -r $BUILD_ARCHITECTURE "WebAPI.csproj" --no-restore -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:8.0 AS final
+FROM base AS final
 
 WORKDIR /app
 EXPOSE 8080
