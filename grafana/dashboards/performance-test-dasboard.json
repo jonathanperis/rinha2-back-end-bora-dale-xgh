@@ -401,7 +401,7 @@
     }
   ],
   "preload": false,
-  "refresh": "",
+  "refresh": "10s",
   "schemaVersion": 40,
   "tags": [
     "k6",
