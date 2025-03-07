@@ -81,14 +81,14 @@ RETURNS TABLE (
     Total INTEGER,
     Limite INTEGER,
     data_extrato TIMESTAMP,
-    transacoes JSON
+    transacoes JSONB
 ) AS $$
 BEGIN
   RETURN QUERY 
   SELECT c."SaldoInicial" AS Total, 
 	     c."Limite" AS Limite, 
 	     NOW()::timestamp AS data_extrato,
-	     COALESCE(json_agg(t) FILTER (WHERE t."ClienteId" IS NOT NULL), '[]') AS transacoes
+	     COALESCE(jsonb_agg(t) FILTER (WHERE t."ClienteId" IS NOT NULL), '[]') AS transacoes
   FROM public."Clientes" c
   LEFT JOIN (
     SELECT "ClienteId", "Valor", "Tipo", "Descricao", "RealizadoEm"

@@ -1,3 +1,4 @@
+using MemoryPack;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 #if !EXTRAOPTIMIZE
@@ -66,7 +67,7 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
 
     await using (var cmd = dataSource.CreateCommand())
     {
-        cmd.CommandText = "SELECT * FROM GetSaldoClienteById($1)";
+        cmd.CommandText = $"SELECT * FROM GetSaldoClienteById($1)";
         cmd.Parameters.AddWithValue(id);
 
         using var reader = await cmd.ExecuteReaderAsync();
@@ -75,7 +76,8 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
             return Results.NotFound();
 
         var saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetDateTime(2));
-        var extrato = new ExtratoDto(saldo, JsonSerializer.Deserialize(reader.GetString(3), SourceGenerationContext.Default.ListTransacaoDto));
+        var transacoes = MemoryPackSerializer.Deserialize<List<TransacaoDto>>(reader.GetFieldValue<byte[]>(3));
+        var extrato = new ExtratoDto(saldo, transacoes);
 
         return Results.Ok(extrato);
     }
@@ -124,10 +126,11 @@ static bool IsTransacaoValid(TransacaoDto transacao)
 [JsonSerializable(typeof(ExtratoDto))]
 [JsonSerializable(typeof(SaldoDto))]
 [JsonSerializable(typeof(TransacaoDto))]
-[JsonSerializable(typeof(List<TransacaoDto>))]
 internal partial class SourceGenerationContext : JsonSerializerContext { }
 
 internal readonly record struct ClienteDto(int Id, int Limite, int Saldo);
 internal readonly record struct ExtratoDto(SaldoDto Saldo, List<TransacaoDto>? ultimas_transacoes);
 internal readonly record struct SaldoDto(int Total, int Limite, DateTime data_extrato);
 internal readonly record struct TransacaoDto(int Valor, string Tipo, string Descricao);
+
+internal partial record struct TransacaoResponse<T> : List<T>();

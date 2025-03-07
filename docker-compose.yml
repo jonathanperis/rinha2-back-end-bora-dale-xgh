@@ -26,7 +26,7 @@ services:
     container_name: webapi-2
 
   db:
-    image: postgres
+    image: postgres:16.2
     hostname: db
     container_name: db-rinha
     restart: always
