@@ -132,7 +132,8 @@ export function extratos() {
 }
 
 export function validacoes() {
-  const cliente = saldosIniciaisClientes[__VU - 1];
+  const index = (__VU - 1) % saldosIniciaisClientes.length;
+  const cliente = saldosIniciaisClientes[index];
   
   group('Validações cliente', () => {
     // Initial checks
