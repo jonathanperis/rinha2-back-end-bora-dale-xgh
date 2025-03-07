@@ -18,10 +18,10 @@ datasources:
     type: influxdb
     access: proxy
     url: http://influxdb:8086
-    # isDefault: true    
+    isDefault: true    
     secureJsonData:
       token: EEKpryGZk8pVDXmIuy484BKUxM5jOEDv7YNoeNZUbsNbpbPbP6kK_qY9Zsyw7zNnlZ7pHG16FYzNaqwLMBUz8g==
     jsonData:
       version: Flux
-      organization: organization
-      defaultBucket: bucket
+      organization: rinha
+      defaultBucket: demo
