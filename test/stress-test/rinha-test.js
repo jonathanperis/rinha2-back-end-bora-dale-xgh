@@ -43,7 +43,7 @@ export const options = {
       startTime: '0s',
       exec: 'cliente_nao_encontrado',
     },
-    // Load scenarios start after 10s to avoid interference with validations
+    // Load scenarios for debitos and creditos start after 10s
     debitos: {
       executor: 'ramping-vus',
       startVUs: 1,
@@ -64,13 +64,11 @@ export const options = {
       startTime: '10s',
       exec: 'creditos',
     },
+    // The extratos scenario is now executed only once with exactly 10 VUs
     extratos: {
-      executor: 'ramping-vus',
-      startVUs: 1,
-      stages: [
-        { duration: '2m', target: 10 },
-        { duration: '2m', target: 10 },
-      ],
+      executor: 'per-vu-iterations',
+      vus: 10,
+      iterations: 1,
       startTime: '10s',
       exec: 'extratos',
     },
@@ -178,8 +176,7 @@ export function validacoes() {
       'saldo inicial 0': (r) => r.json('saldo.total') === 0,
     });
 
-    // Execute 2 transactions in sequence:
-    // 1) Credito ("toma") then 2) Debito ("devolve")
+    // Execute 2 transactions in sequence: a credit ("toma") then a debit ("devolve")
     res = http.post(
       `${baseUrl}/clientes/${cliente.id}/transacoes`,
       JSON.stringify({ valor: 1, tipo: 'c', descricao: 'toma' }),
@@ -217,7 +214,7 @@ export function validacoes() {
       },
     });
 
-    // Execute invalid requests; allow either 422 or 400
+    // Execute invalid requests; allow either 422 or 400 as valid responses
     const invalidRequests = [
       { valor: 1.2, tipo: 'd', descricao: 'devolve', expectedStatus: 422 },
       { valor: 1, tipo: 'x', descricao: 'devolve', expectedStatus: 422 },
@@ -233,7 +230,6 @@ export function validacoes() {
         { headers: { 'Content-Type': 'application/json' } }
       );
       check(res, {
-        // Accept either the expected status or 400 as valid
         [`status ${req.expectedStatus}`]: (r) =>
           r.status === req.expectedStatus || r.status === 400,
       });
