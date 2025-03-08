@@ -18,7 +18,7 @@ jobs:
           global-json-file: global.json
 
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore ./src/WebApi/WebApi.csproj
 
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0
@@ -32,7 +32,7 @@ jobs:
           updateAssemblyInfo: true
 
       - name: Build Application
-        run: dotnet build --configuration Release --no-restore /p:Version=${{ env.GitVersion_SemVer }}
+        run: dotnet build ./src/WebApi/WebApi.csproj --configuration Release --no-restore /p:Version=${{ env.GitVersion_SemVer }}
 
   build-push-image:
     needs: setup-build-test
