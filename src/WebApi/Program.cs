@@ -55,9 +55,7 @@ var clientes = new Dictionary<int, int>
     { 5, 500000 }
 };
 
-#if !EXTRAOPTIMIZE
 app.MapHealthChecks("/healthz");
-#endif
 
 app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDataSource dataSource) =>
 {
