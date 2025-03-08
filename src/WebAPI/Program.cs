@@ -33,7 +33,7 @@ builder.Services.AddOpenTelemetry()
         .AddProcessInstrumentation()
         .AddRuntimeInstrumentation()
         .AddAspNetCoreInstrumentation()
-        .AddPrometheusExporter());  
+        .AddPrometheusExporter());
 #endif
 
 builder.Services.AddNpgsqlDataSource(
@@ -48,10 +48,10 @@ app.MapPrometheusScrapingEndpoint();
 
 var clientes = new Dictionary<int, int>
 {
-    { 1, 100000 }, 
-    { 2, 80000 }, 
-    { 3, 1000000 }, 
-    { 4, 10000000 }, 
+    { 1, 100000 },
+    { 2, 80000 },
+    { 3, 1000000 },
+    { 4, 10000000 },
     { 5, 500000 }
 };
 
@@ -61,24 +61,25 @@ app.MapGet("/", () => "Hello World!");
 
 app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDataSource dataSource) =>
 {
-    if (!clientes.ContainsKey(id))
+    if (!clientes.TryGetValue(id, out _))
         return Results.NotFound();
 
-    await using (var cmd = dataSource.CreateCommand())
-    {
-        cmd.CommandText = "SELECT * FROM GetSaldoClienteById($1)";
-        cmd.Parameters.AddWithValue(id);
+    await using var cmd = dataSource.CreateCommand();
+    cmd.CommandText = "SELECT * FROM GetSaldoClienteById($1)";
+    cmd.Parameters.AddWithValue(id);
+    // Prepare command for optimized repeated execution under stress
+    await cmd.PrepareAsync();
 
-        using var reader = await cmd.ExecuteReaderAsync();
+    using var reader = await cmd.ExecuteReaderAsync();
+    if (!await reader.ReadAsync())
+        return Results.NotFound();
 
-        if (!await reader.ReadAsync())
-            return Results.NotFound();
+    var saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetDateTime(2));
+    var transacoesJson = reader.GetString(3);
+    var ultimasTransacoes = JsonSerializer.Deserialize(transacoesJson, SourceGenerationContext.Default.ListTransacaoDto);
 
-        var saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetDateTime(2));
-        var extrato = new ExtratoDto(saldo, JsonSerializer.Deserialize(reader.GetString(3), SourceGenerationContext.Default.ListTransacaoDto));
-
-        return Results.Ok(extrato);
-    }
+    var extrato = new ExtratoDto(saldo, ultimasTransacoes);
+    return Results.Ok(extrato);
 });
 
 app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] TransacaoDto transacao, [FromServices] NpgsqlDataSource dataSource) =>
@@ -89,35 +90,33 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] Transacao
     if (!IsTransacaoValid(transacao))
         return Results.UnprocessableEntity();
 
-    await using (var cmd = dataSource.CreateCommand())
-    {      
-        cmd.CommandText = "SELECT InsertTransacao($1, $2, $3, $4)";
-        cmd.Parameters.AddWithValue(id);
-        cmd.Parameters.AddWithValue(transacao.Valor);
-        cmd.Parameters.AddWithValue(transacao.Tipo);
-        cmd.Parameters.AddWithValue(transacao.Descricao);
+    await using var cmd = dataSource.CreateCommand();
+    cmd.CommandText = "SELECT InsertTransacao($1, $2, $3, $4)";
+    cmd.Parameters.AddWithValue(id);
+    cmd.Parameters.AddWithValue(transacao.Valor);
+    cmd.Parameters.AddWithValue(transacao.Tipo);
+    cmd.Parameters.AddWithValue(transacao.Descricao);
+    await cmd.PrepareAsync();
 
-        using var reader = await cmd.ExecuteReaderAsync();
+    using var reader = await cmd.ExecuteReaderAsync();
+    if (!await reader.ReadAsync())
+        return Results.UnprocessableEntity();
 
-        if (!await reader.ReadAsync())
-            return Results.UnprocessableEntity();
-
-        var updatedSaldo = reader.GetInt32(0);
-
-        return Results.Ok(new ClienteDto(id, limite, updatedSaldo)); 
-    }
+    var updatedSaldo = reader.GetInt32(0);
+    return Results.Ok(new ClienteDto(id, limite, updatedSaldo));
 });
 
 app.Run();
 
 static bool IsTransacaoValid(TransacaoDto transacao)
 {
-    string[] tipoTransacao = ["c", "d"];
+    ReadOnlySpan<char> tipoC = "c";
+    ReadOnlySpan<char> tipoD = "d";
 
-    return tipoTransacao.Contains(transacao.Tipo)
-        && !string.IsNullOrEmpty(transacao.Descricao)
-        && transacao.Descricao.Length <= 10
-        && transacao.Valor > 0;
+    return (transacao.Tipo.AsSpan().SequenceEqual(tipoC) || transacao.Tipo.AsSpan().SequenceEqual(tipoD))
+           && !string.IsNullOrEmpty(transacao.Descricao)
+           && transacao.Descricao.Length <= 10
+           && transacao.Valor > 0;
 }
 
 [JsonSerializable(typeof(ClienteDto))]
