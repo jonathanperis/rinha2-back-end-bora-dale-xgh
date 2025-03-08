@@ -1,10 +1,5 @@
 name: 'rinha2-jonathanperis-xgh'
 
-# networks:
-#   k6:
-#   grafana:
-#   influxdb:
-
 services:
   webapi1: &webapi1
     # image: jonathanperis/rinha2-back-end-bora-dale-xgh:latest
@@ -119,20 +114,6 @@ services:
     networks:
     - network-bora-dale-xgh
 
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   container_name: pgadmin-rinha
-  #   depends_on:
-  #     - db    
-  #   ports:
-  #     - "5050:5050"
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
-  #     PGADMIN_DEFAULT_PASSWORD: "admin"
-  #     PGADMIN_LISTEN_PORT: 5050
-  #   networks:
-  #   - network-bora-dale-xgh
-
   k6:
     build:
       context: ./test/
@@ -158,7 +139,9 @@ services:
       - db
       - grafana 
       - influxdb      
-    entrypoint: ["/bin/sh", "/app/init-test.sh"]
+    # entrypoint: ["/bin/sh", "/app/run-rinha-test.sh"]
+    # entrypoint: ["/bin/sh", "/app/run-load-test.sh"]
+    entrypoint: ["/bin/sh", "/app/run-validacoes-load-test.sh"]
     ports:
       - "5665:5665"
     networks:
@@ -166,6 +149,7 @@ services:
 
   influxdb:
     image: influxdb:2.0-alpine
+    container_name: influxdb-rinha
     ports:
       - "8086:8086"
     volumes:
@@ -179,6 +163,25 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=EEKpryGZk8pVDXmIuy484BKUxM5jOEDv7YNoeNZUbsNbpbPbP6kK_qY9Zsyw7zNnlZ7pHG16FYzNaqwLMBUz8g==
     networks:
       - network-bora-dale-xgh
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin-rinha
+  #   depends_on:
+  #     - db    
+  #   ports:
+  #     - "5050:5050"
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+  #     PGADMIN_DEFAULT_PASSWORD: "admin"
+  #     PGADMIN_LISTEN_PORT: 5050
+  #   networks:
+  #   - network-bora-dale-xgh
+
+# networks:
+#   k6:
+#   grafana:
+#   influxdb:
 
 networks:
   network-bora-dale-xgh:
