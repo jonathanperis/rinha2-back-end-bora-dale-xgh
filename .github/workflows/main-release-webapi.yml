@@ -73,7 +73,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./src/
-          file: ./WebApi/Dockerfile
+          file: ./src/WebApi/Dockerfile
           push: true
           tags: jonathanperis/rinha2-back-end-bora-dale-xgh:latest
           build-args: |
