@@ -92,7 +92,7 @@ jobs:
 
       - name: Build and Run Docker Compose
         run: |
-          docker-compose -f ./prod/docker-compose.yml up nginx -d
+          docker compose -f ./prod/docker-compose.yml up nginx -d
           sleep 10
 
       - name: Test Healthcheck Endpoint
@@ -119,7 +119,7 @@ jobs:
 
       - name: Build and Run Docker Compose
         run: |
-          docker-compose -f ./prod/docker-compose.yml up k6 --build --force-recreate 
+          docker compose -f ./prod/docker-compose.yml up k6 --build --force-recreate 
           sleep 10
 
     #   - name: test

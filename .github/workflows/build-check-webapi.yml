@@ -56,7 +56,7 @@ jobs:
 
       - name: Build and Run Docker Compose
         run: |
-          docker-compose -f ./docker-compose.yml up nginx -d
+          docker compose -f ./docker-compose.yml up nginx -d
           sleep 10
 
       - name: Test Healthcheck Endpoint
