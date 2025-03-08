@@ -19,19 +19,19 @@ ARG BUILD_CONFIGURATION
 
 WORKDIR /src
 
-COPY ["WebAPI/WebAPI.csproj", "WebAPI/"]
+COPY ["WebApi/WebApi.csproj", "WebApi/"]
 
-RUN dotnet restore -r $BUILD_ARCHITECTURE "./WebAPI/WebAPI.csproj" -p:Configuration=${BUILD_CONFIGURATION} -p:AOT=${AOT} -p:Trim=${TRIM}
+RUN dotnet restore -r $BUILD_ARCHITECTURE "./WebApi/WebApi.csproj" -p:Configuration=${BUILD_CONFIGURATION} -p:AOT=${AOT} -p:Trim=${TRIM}
 
 COPY . .
 
-WORKDIR "/src/WebAPI"
+WORKDIR "/src/WebApi"
 
-RUN dotnet build -r $BUILD_ARCHITECTURE "WebAPI.csproj" -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/build
+RUN dotnet build -r $BUILD_ARCHITECTURE "WebApi.csproj" -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/build
 
 FROM build AS publish
 
-RUN dotnet publish -r $BUILD_ARCHITECTURE "WebAPI.csproj" --no-restore -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/publish
+RUN dotnet publish -r $BUILD_ARCHITECTURE "WebApi.csproj" --no-restore -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/publish
 
 FROM base AS final
 
@@ -39,4 +39,4 @@ WORKDIR /app
 EXPOSE 8080
 
 COPY --from=publish /app/publish .
-ENTRYPOINT ["./WebAPI"]
+ENTRYPOINT ["./WebApi"]

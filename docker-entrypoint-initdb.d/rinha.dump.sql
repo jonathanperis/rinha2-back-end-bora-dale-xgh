@@ -105,13 +105,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Optimized balance function
+-- Optimized balance retrieval function using jsonb for efficiency
 CREATE OR REPLACE FUNCTION public.GetSaldoClienteById(IN id INTEGER)
 RETURNS TABLE (
     Total INTEGER,
     Limite INTEGER,
     data_extrato TIMESTAMP,
-    transacoes JSON
+    transacoes jsonb
 ) AS $$
 BEGIN
   RETURN QUERY 
@@ -120,7 +120,7 @@ BEGIN
     c."Limite" AS Limite,
     NOW()::timestamp AS data_extrato,
     COALESCE((
-        SELECT json_agg(t)
+        SELECT jsonb_agg(t)
         FROM (
             SELECT "Valor", "Tipo", "Descricao", "RealizadoEm"
             FROM public."Transacoes"
@@ -128,7 +128,7 @@ BEGIN
             ORDER BY "Id" DESC
             LIMIT 10
         ) t
-    ), '[]') AS transacoes
+    ), '[]'::jsonb) AS transacoes
   FROM public."Clientes" c
   WHERE c."Id" = id;
 END;

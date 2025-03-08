@@ -62,3 +62,21 @@ services:
         limits:
           cpus: "0.2"
           memory: "20MB"
+
+  k6:
+    image: grafana/k6
+    container_name: k6
+    environment:
+      - BASE_URL=http://nginx:9999
+      - K6_WEB_DASHBOARD=true 
+    volumes:
+      - "./test/stress-test:/app"
+    working_dir: /app
+    tty: true
+    stdin_open: true
+    depends_on:
+      - nginx
+    entrypoint: ["/bin/sh", "/app/run-rinha-test.sh"]
+    ports:
+      - "5665:5665"
+    network_mode: host

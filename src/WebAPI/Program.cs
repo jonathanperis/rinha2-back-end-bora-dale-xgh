@@ -56,7 +56,7 @@ var clientes = new Dictionary<int, int>
 };
 
 #if !EXTRAOPTIMIZE
-app.MapGet("/", () => "Hello World!");
+app.MapHealthChecks("/healthz");
 #endif
 
 app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDataSource dataSource) =>
@@ -75,8 +75,8 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
             return Results.NotFound();
 
         var saldo = new SaldoDto(reader.GetInt32(0), reader.GetInt32(1), reader.GetDateTime(2));
-        var transacoesJson = reader.GetString(3);
-        var ultimasTransacoes = JsonSerializer.Deserialize(transacoesJson, SourceGenerationContext.Default.ListTransacaoDto);
+        var jsonDoc = reader.GetFieldValue<JsonDocument>(3);
+        var ultimasTransacoes = JsonSerializer.Deserialize<List<TransacaoDto>>(jsonDoc.RootElement, SourceGenerationContext.Default.ListTransacaoDto.Options);
 
         var extrato = new ExtratoDto(saldo, ultimasTransacoes);
 

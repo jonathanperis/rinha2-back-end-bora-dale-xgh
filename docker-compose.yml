@@ -5,7 +5,7 @@ services:
     # image: jonathanperis/rinha2-back-end-bora-dale-xgh:latest
     build:
       context: ./src/
-      dockerfile: ./WebAPI/Dockerfile
+      dockerfile: ./WebApi/Dockerfile
       args:
         AOT: true
         TRIM: false
@@ -133,9 +133,10 @@ services:
       - network-bora-dale-xgh
 
   k6:
+    # image: grafana/k6
     build:
       context: ./test/
-      dockerfile: ./stress-test/Dockerfile    
+      dockerfile: ./stress-test/Dockerfile
     container_name: k6
     environment:
       - BASE_URL=http://nginx:9999
@@ -152,9 +153,6 @@ services:
     stdin_open: true
     depends_on:
       - nginx
-      - webapi1
-      - webapi2
-      - db
       - grafana 
       - influxdb      
     entrypoint: ["/bin/sh", "/app/run-rinha-test.sh"]

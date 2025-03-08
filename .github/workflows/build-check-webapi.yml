@@ -1,0 +1,62 @@
+name: Main Check Build
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  setup-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: '5.x'
+  
+      - name: Determine Version
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: true
+          updateAssemblyInfo: true
+
+      - name: Build Application
+        run: dotnet build --configuration Debug --no-restore /p:Version=${{ env.GitVersion_SemVer }}
+
+  container-test:
+    needs: setup-build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build and Run Docker Compose
+        run: |
+          docker-compose -f ./docker-compose.yml up nginx -d
+          sleep 10
+
+      - name: Test Healthcheck Endpoint
+        run: |
+          for i in {1..20}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9999/healthz)
+            if [ "$STATUS" -eq 200 ]; then
+              echo "Healthcheck passed with status $STATUS"
+              exit 0
+            else
+              echo "Healthcheck attempt $i failed with status $STATUS. Retrying..."
+              sleep 2
+            fi
+          done
+          echo "Healthcheck failed after 20 attempts."
+          exit 1
