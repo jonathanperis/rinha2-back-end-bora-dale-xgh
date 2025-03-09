@@ -40,6 +40,8 @@ builder.Services.AddNpgsqlDataSource(
     builder.Configuration.GetConnectionString("DefaultConnection")!
 );
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 #if !EXTRAOPTIMIZE
