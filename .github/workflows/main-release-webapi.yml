@@ -130,4 +130,4 @@ jobs:
         with:
           name: stress-test-report
           path: ./prod/conf/stress-test/reports/stress-test-report.html
-          retention-days: 7
+          # retention-days: 7
