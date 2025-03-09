@@ -117,6 +117,9 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      - name: Create Reports Folder
+        run: mkdir -p stress-test-reports
+
       - name: Build and Run Docker Compose
         run: |
           docker compose -f ./prod/docker-compose.yml up k6 --build --force-recreate 
