@@ -144,22 +144,27 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Deploy Report to GitHub Pages
+      - name: Deploy Report to GitHub Pages (Commit to Main Repository)
         run: |
-          # Calculate timestamp for report renaming
+          # Calculate timestamp for renaming
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           REPORT_NAME="stress-test-report-${TIMESTAMP}.html"
-          # Create a temporary deployment folder with the docs/gh-pages/reports structure
-          mkdir -p temp-deploy/docs/gh-pages/reports
-          # Copy and rename the stress test report into the reports folder
-          cp ./prod/conf/stress-test/reports/stress-test-report.html temp-deploy/docs/gh-pages/reports/${REPORT_NAME}
-          # Change directory to the temp deployment folder
-          cd temp-deploy
-          # Initialize a new Git repository
-          git init
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b gh-pages
-          git add .
-          git commit -m "Deploy stress test report as ${REPORT_NAME} to GitHub Pages"
-          git push --force https://github.com/jonathanperis/rinha2-back-end-bora-dale-xgh.git gh-pages
+          
+          # Clone the main repository into a temporary folder
+          git clone https://github.com/jonathanperis/rinha2-back-end-bora-dale-xgh.git repo-temp
+          cd repo-temp
+          
+          # Create the destination folder under docs/gh-pages/reports
+          mkdir -p docs/gh-pages/reports
+          
+          # Copy and rename the stress test report into the destination folder
+          cp ../prod/conf/stress-test/reports/stress-test-report.html docs/gh-pages/reports/${REPORT_NAME}
+          
+          # Configure Git user
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Stage, commit, and push the changes to the main branch of the repository
+          git add docs/gh-pages/reports/${REPORT_NAME}
+          git commit -m "Deploy stress test report as ${REPORT_NAME} to GitHub Pages (committed into main)"
+          git push origin main
