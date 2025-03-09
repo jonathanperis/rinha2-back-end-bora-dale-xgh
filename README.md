@@ -6,7 +6,7 @@ Esta versão é uma versão derivada da minha [versão API com cara de API](http
 
 ## Stack
 
-- aspnet 9.0
+- aspnet 8.0
 - nginx
 - postgresql
 
@@ -25,13 +25,13 @@ docker-compose up -d nginx
 
 ### Resultado do Gatling em produção (sim, é só dotnet. Mas eu gosto! XD)
 
-![Gatling-Prod](docs/gatling-prod.png)
+![Gatling-Prod](docs/screenshots/gatling-prod.png)
 
 ### Resultado do Gatling local
 
 Todas requisições abaixo de 800ms. (Estes testes utilizaram um máximo de 250MB RAM distribuidos entre os recursos. 60% menos recurso de memória RAM do que o permitido pela rinha!
 
-![Gatling](docs/gatling.png)
+![Gatling](docs/screenshots/gatling.png)
 
 ## Métricas dos testes
 
@@ -39,17 +39,17 @@ Métricas colhidas no Docker Desktop após a execução do teste. O teste foi ex
 
 - Banco de dados (Postgresql)
 
-![Banco de dados](docs/metrica-banco-de-dados.jpeg)
+![Banco de dados](docs/screenshots/metrica-banco-de-dados.jpeg)
 
 - Endpoints (.NET)
 
-![Endpoint 1 da API](docs/metrica-api-endpoint-1.jpeg)
+![Endpoint 1 da API](docs/screenshots/metrica-api-endpoint-1.jpeg)
 
-![Endpoint 1 da API](docs/metrica-api-endpoint-2.jpeg)
+![Endpoint 1 da API](docs/screenshots/metrica-api-endpoint-2.jpeg)
 
 - Proxy reverso (Nginx)
 
-![Proxy reverso](docs/metrica-proxy-reverso.jpeg)
+![Proxy reverso](docs/screenshots/metrica-proxy-reverso.jpeg)
 
 Este repositorio foi desenvolvido utilizando de minha experiencia profissional e inspirado nos seguintes colegas da rinha:
 
