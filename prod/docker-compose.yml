@@ -67,6 +67,7 @@ services:
     image: grafana/k6
     container_name: k6
     environment:
+      - K6_WEB_DASHBOARD=true
       - K6_WEB_DASHBOARD_EXPORT=stress-test-report.html
     volumes:
       - "./conf/stress-test:/app"
