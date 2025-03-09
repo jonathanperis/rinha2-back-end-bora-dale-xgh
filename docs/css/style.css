@@ -1,5 +1,22 @@
 /* docs/css/style.css */
-/* Custom styles can be added here */
+
+/* Use system-ui fonts to mimic GitHub's typography */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   }
+  
+  /* Container max-width for content alignment */
+  .container {
+    max-width: 1200px;
+  }
+  
+  /* Base link styling */
+  a {
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Additional custom styles can be added here to further refine the GitHub aesthetic */
