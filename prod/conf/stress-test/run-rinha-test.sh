@@ -4,7 +4,7 @@ echo "Tests will start in 15 seconds..."
 sleep 15
 
 # Run the k6 test
-k6 run rinha-test.js
+k6 run rinha-test.js --quiet
 
 # Fix the permissions on the generated report before copying it.
 if [ -f stress-test-report.html ]; then
