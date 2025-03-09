@@ -135,3 +135,27 @@ jobs:
           name: stress-test-report
           path: ./prod/conf/stress-test/reports/stress-test-report.html
           # retention-days: 7
+
+      - name: Install Git
+        run: sudo apt-get update && sudo apt-get install -y git
+
+      - name: Configure Git User
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Deploy Report to GitHub Pages
+        run: |
+          # Calculate timestamp
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          REPORT_NAME="stress-test-report-${TIMESTAMP}.html"
+          # Create temporary directory and move the report to reports folder with new name
+          mkdir -p gh-pages/reports
+          cp ./prod/conf/stress-test/reports/stress-test-report.html gh-pages/reports/${REPORT_NAME}
+          cd gh-pages
+          git init
+          git remote add origin https://github.com/jonathanperis/rinha2-back-end-bora-dale-xgh.git
+          git checkout -b gh-pages
+          git add .
+          git commit -m "Deploy stress test report as ${REPORT_NAME} to GitHub Pages"
+          git push --force origin gh-pages
