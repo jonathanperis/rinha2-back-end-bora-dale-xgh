@@ -126,7 +126,7 @@ jobs:
           sleep 10
 
       - name: Listing Files
-        run: ls -s
+        run: find . -printf '%y %p\n'
 
       - name: Upload Stress Test Report Artifact
         uses: actions/upload-artifact@v4
