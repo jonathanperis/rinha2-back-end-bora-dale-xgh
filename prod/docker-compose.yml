@@ -67,8 +67,7 @@ services:
     image: grafana/k6
     container_name: k6
     environment:
-      - BASE_URL=http://nginx:9999
-      - K6_WEB_DASHBOARD=true 
+      - K6_WEB_DASHBOARD_EXPORT=stress-test-report.html
     volumes:
       - "./conf/stress-test:/app"
     working_dir: /app
