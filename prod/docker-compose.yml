@@ -72,7 +72,7 @@ services:
       - K6_WEB_DASHBOARD_EXPORT=stress-test-report.html
     volumes:
       - "./conf/stress-test:/app"
-      - "./conf/stress-test/stress-test-reports:/app/reports"
+      - "./conf/stress-test/reports:/app/reports"
     working_dir: /app
     tty: true
     stdin_open: true

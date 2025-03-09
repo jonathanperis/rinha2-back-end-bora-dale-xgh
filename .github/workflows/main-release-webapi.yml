@@ -117,20 +117,17 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: Create Reports Folder
-        run: mkdir -p stress-test-reports
-
       - name: Build and Run Docker Compose
         run: |
           docker compose -f ./prod/docker-compose.yml up k6 --build --force-recreate 
           sleep 10
 
-      - name: Listing Files
+      - name: Listing Files recursively
         run: find . -printf '%y %p\n'
 
       - name: Upload Stress Test Report Artifact
         uses: actions/upload-artifact@v4
         with:
           name: stress-test-report
-          path: stress-test-reports/stress-test-report.html
+          path: ./prod/conf/stress-test/reports/stress-test-report.html
           retention-days: 7
