@@ -22,6 +22,6 @@ else
     echo "Report not found!"
 fi
 
-# List contents of /reports to confirm file presence
-echo "Contents of /reports:"
-ls -l /reports
+# Listing Files recursively to confirm file presence
+echo "Listing Files recursively:"
+find . -printf '%y %p\n'
