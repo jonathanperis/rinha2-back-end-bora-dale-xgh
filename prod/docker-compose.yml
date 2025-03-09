@@ -70,7 +70,7 @@ services:
       - BASE_URL=http://nginx:9999
       - K6_WEB_DASHBOARD=true 
     volumes:
-      - "./test/stress-test:/app"
+      - "./conf/stress-test:/app"
     working_dir: /app
     tty: true
     stdin_open: true
