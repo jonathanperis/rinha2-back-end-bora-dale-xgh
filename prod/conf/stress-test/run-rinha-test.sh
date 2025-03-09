@@ -3,7 +3,7 @@
 echo "Tests will start in 15 seconds..."
 sleep 15
 
-sudo k6 run rinha-test.js
+k6 run rinha-test.js
 
 # After the test run, copy the exported report to the mounted /reports directory
 if [ -f stress-test-report.html ]; then
