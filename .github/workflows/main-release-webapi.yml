@@ -122,6 +122,12 @@ jobs:
           docker compose -f ./prod/docker-compose.yml up k6 --build --force-recreate 
           sleep 10
 
+      - name: Upload Stress Test Report Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: stress-test-report
+          path: stress-test-reports/stress-test-report.html
+
     #   - name: test
     #     run: |
     #       git clone --depth 1 --single-branch -b main https://github.com/jonathanperis/rinha-de-backend-2024-q1.git
