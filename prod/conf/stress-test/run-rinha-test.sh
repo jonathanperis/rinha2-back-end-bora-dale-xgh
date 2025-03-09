@@ -21,7 +21,3 @@ if [ -f stress-test-report.html ]; then
 else
     echo "Report not found!"
 fi
-
-# Listing Files recursively to confirm file presence
-echo "Listing Files recursively:"
-find . -printf '%y %p\n'
