@@ -125,6 +125,9 @@ jobs:
           docker compose -f ./prod/docker-compose.yml up k6 --build --force-recreate 
           sleep 10
 
+      - name: Listing Files
+        run: ls -s
+
       - name: Upload Stress Test Report Artifact
         uses: actions/upload-artifact@v4
         with:
