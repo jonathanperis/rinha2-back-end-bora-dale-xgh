@@ -130,24 +130,4 @@ jobs:
         with:
           name: stress-test-report
           path: stress-test-reports/stress-test-report.html
-
-    #   - name: test
-    #     run: |
-    #       git clone --depth 1 --single-branch -b main https://github.com/jonathanperis/rinha-de-backend-2024-q1.git
-    #       wget -P $RINHA_DIR https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-highcharts-bundle/3.10.3/gatling-charts-highcharts-bundle-3.10.3-bundle.zip
-    #       unzip -d $RINHA_DIR $RINHA_DIR/gatling-charts-highcharts-bundle-3.10.3-bundle.zip
-    #       sudo sh ./prod/executar-teste-local
-
-    #       echo GATLING_REPORT=$(ls $RINHA_DIR/load-test/user-files/results | sort | head -n 1) >> $GITHUB_ENV
-
-    #   - name: Fix permissions
-    #     run: |
-    #       chmod -c -R +rX "_site/" | while read line; do
-    #         echo "::warning title=Invalid file permissions automatically fixed::$line"
-    #       done
-
-    #   - name: upload test results
-    #     uses: actions/upload-pages-artifact@v3
-    #     with:
-    #       path: ${{ env.RINHA_DIR }}/load-test/user-files/results/${{ env.GATLING_REPORT }}
-    #       retention-days: 2
+          retention-days: 7
