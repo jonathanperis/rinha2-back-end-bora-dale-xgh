@@ -69,7 +69,7 @@ services:
     user: root
     environment:
       - K6_WEB_DASHBOARD=true
-      - K6_WEB_DASHBOARD_EXPORT=stress-test-report.html
+      - K6_WEB_DASHBOARD_EXPORT=./reports/stress-test-report.html
     volumes:
       - "./conf/stress-test:/app"
       - "./conf/stress-test/reports:/app/reports"
