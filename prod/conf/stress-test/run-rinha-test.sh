@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Ensure the /reports directory exists (creates it if not, with appropriate permissions)
+mkdir -p /reports
+
 echo "Tests will start in 15 seconds..."
 sleep 15
 
@@ -14,3 +17,7 @@ if [ -f stress-test-report.html ]; then
 else
     echo "Report not found!"
 fi
+
+# List contents of /reports to confirm file presence
+echo "Contents of /reports:"
+ls -l /reports
