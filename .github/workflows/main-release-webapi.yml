@@ -1,5 +1,9 @@
 name: Main Release Pipeline
 
+# Grant write permission for repository contents to allow pushing changes.
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -152,7 +156,7 @@ jobs:
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           REPORT_NAME="stress-test-report-${TIMESTAMP}.html"
           
-          # Clone the main repository into a temporary folder
+          # Clone the main repository into a temporary folder using the GITHUB_TOKEN for authentication
           git clone https://x-access-token:${GITHUB_TOKEN}@github.com/jonathanperis/rinha2-back-end-bora-dale-xgh.git repo-temp
           cd repo-temp
           
