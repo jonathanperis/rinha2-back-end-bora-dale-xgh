@@ -145,13 +145,15 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Deploy Report to GitHub Pages (Commit to Main Repository)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Calculate timestamp for renaming
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           REPORT_NAME="stress-test-report-${TIMESTAMP}.html"
           
           # Clone the main repository into a temporary folder
-          git clone https://github.com/jonathanperis/rinha2-back-end-bora-dale-xgh.git repo-temp
+          git clone https://x-access-token:${GITHUB_TOKEN}@github.com/jonathanperis/rinha2-back-end-bora-dale-xgh.git repo-temp
           cd repo-temp
           
           # Create the destination folder under docs/gh-pages/reports
