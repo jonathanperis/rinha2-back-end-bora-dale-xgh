@@ -53,8 +53,10 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
 
-      - name: Build and Run Docker Compose
+      - name: Build and Run Docker Compose for Healthcheck Test
         run: |
           docker compose -f ./docker-compose.yml up nginx -d
           sleep 10
