@@ -2,8 +2,6 @@
 
 Versão C# da [rinha de backend 2ª edição - 2024/Q1](https://github.com/zanfranceschi/rinha-de-backend-2024-q1). 
 
-Esta versão é uma versão derivada da minha [versão API com cara de API](https://github.com/jonathanperis/rinha2-back-end-bora-dale), agora no modo XGH! :D
-
 ## Stack
 
 - aspnet 8.0
