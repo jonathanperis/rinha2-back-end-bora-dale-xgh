@@ -1,4 +1,4 @@
-name: 'rinha2-jonathanperis-xgh-prod'
+name: 'rinha2-jonathanperis-xgh-bora-dale'
 
 services:
   webapi1: &webapi1
