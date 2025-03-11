@@ -13,21 +13,30 @@ if (reportsList) {
     .then(data => {
       // Clear loading message
       reportsList.innerHTML = '';
-      data.forEach(file => {
-        // Only consider HTML files as load test reports
-        if (file.name.endsWith('.html')) {
-          // Generating a public URL for GitHub Pages (docs folder is served as the site)
-          const publicUrl = `https://jonathanperis.github.io/rinha2-back-end-bora-dale-xgh/reports/${file.name}`;
-          const li = document.createElement('li');
-          const a = document.createElement('a');
-          a.href = publicUrl;
-          a.textContent = file.name;
-          a.target = "_blank";
-          a.className = "text-accent hover:underline";
-          li.appendChild(a);
-          reportsList.appendChild(li);
-        }
+      
+      // Filter HTML files (reports)
+      let htmlFiles = data.filter(file => file.name.endsWith('.html'));
+      
+      // Sort files in descending order by name.
+      // Adjust the sorting criteria if your file naming convention is different.
+      htmlFiles.sort((a, b) => b.name.localeCompare(a.name));
+      
+      // Select only the last 5 reports
+      htmlFiles = htmlFiles.slice(0, 5);
+      
+      htmlFiles.forEach(file => {
+        // Generating a public URL for GitHub Pages (docs folder is served as the site)
+        const publicUrl = `https://jonathanperis.github.io/rinha2-back-end-bora-dale-xgh/reports/${file.name}`;
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = publicUrl;
+        a.textContent = file.name;
+        a.target = "_blank";
+        a.className = "text-accent hover:underline";
+        li.appendChild(a);
+        reportsList.appendChild(li);
       });
+      
       // If no HTML files are present, display a message.
       if (!reportsList.children.length) {
         reportsList.innerHTML = '<li>No reports found.</li>';
