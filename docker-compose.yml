@@ -19,7 +19,7 @@ services:
       - db
     restart: always      
     environment:
-      ConnectionStrings__DefaultConnection: Host=db;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
+      DATABASE_URL: Host=db;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
     deploy:
       resources:
         limits:
@@ -175,11 +175,6 @@ services:
   #     PGADMIN_LISTEN_PORT: 5050
   #   networks:
   #   - network-bora-dale-xgh
-
-# networks:
-#   k6:
-#   grafana:
-#   influxdb:
 
 networks:
   network-bora-dale-xgh:

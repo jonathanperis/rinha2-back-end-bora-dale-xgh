@@ -1,10 +1,28 @@
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { SharedArray } from 'k6/data';
+import { Trend } from 'k6/metrics';
 
+// Base URL is read from environment variable. Defaults to localhost if not provided.
 const baseUrl = __ENV.BASE_URL || "http://localhost:9999";
 
-// Helper functions
+// -----------------------------------------------------------------------------
+// Custom Trend Metrics
+// We are creating five Trend metrics to track the duration of requests per scenario:
+// - debitosTrend for the "debitos" scenario.
+// - creditosTrend for the "creditos" scenario.
+// - extratosTrend for the "extratos" scenario.
+// - validacoesTrend for the "validacoes" scenario.
+// - clienteNaoEncontradoTrend for the "cliente_nao_encontrado" scenario.
+export let debitosTrend = new Trend('debitos_duration', true);
+export let creditosTrend = new Trend('creditos_duration', true);
+export let extratosTrend = new Trend('extratos_duration', true);
+export let validacoesTrend = new Trend('validacoes_duration', true);
+export let clienteNaoEncontradoTrend = new Trend('cliente_nao_encontrado_duration', true);
+
+// -----------------------------------------------------------------------------
+// Utility functions to generate random test data.
+// -----------------------------------------------------------------------------
 const randomClienteId = () => Math.floor(Math.random() * 5) + 1;
 const randomValorTransacao = () => Math.floor(Math.random() * 10000) + 1;
 const randomDescricao = () => {
@@ -12,12 +30,12 @@ const randomDescricao = () => {
   return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 };
 
-// Validation function: checks that saldo is not below (limite * -1)
+// Validate that the client's current balance does not exceed its allowed negative limit.
 const validateSaldoLimite = (saldo, limite) => {
   return saldo >= limite * -1;
 };
 
-// Shared initial client data (same as used in the validacoes folder)
+// Shared data for initial client balances is stored in a SharedArray for better performance.
 const saldosIniciaisClientes = new SharedArray('clientes', () => [
   { id: 1, limite: 1000 * 100 },
   { id: 2, limite: 800 * 100 },
@@ -26,9 +44,16 @@ const saldosIniciaisClientes = new SharedArray('clientes', () => [
   { id: 5, limite: 5000 * 100 },
 ]);
 
+// -----------------------------------------------------------------------------
+// k6 Options and Scenarios
+// Each scenario specifies a different test group:
+// - validacoes: performs validation tests for client limits and balance consistency.
+// - cliente_nao_encontrado: tests the “not found” case.
+// - debitos and creditos: simulate ramping up virtual users (VUs) for debit and credit operations.
+// - extratos: simulates retrieval of a client's statement.
+// -----------------------------------------------------------------------------
 export const options = {
   scenarios: {
-    // Validation scenarios start at 0s to use fresh state 
     validacoes: {
       executor: 'per-vu-iterations',
       vus: saldosIniciaisClientes.length,
@@ -43,7 +68,6 @@ export const options = {
       startTime: '0s',
       exec: 'cliente_nao_encontrado',
     },
-    // Load scenarios for debitos and creditos start after 10s
     debitos: {
       executor: 'ramping-vus',
       startVUs: 1,
@@ -64,7 +88,6 @@ export const options = {
       startTime: '10s',
       exec: 'creditos',
     },
-    // The extratos scenario is now executed only once with exactly 10 VUs
     extratos: {
       executor: 'per-vu-iterations',
       vus: 10,
@@ -75,23 +98,31 @@ export const options = {
   },
 };
 
+// -----------------------------------------------------------------------------
+// Test function for debit transactions
+// -----------------------------------------------------------------------------
 export function debitos() {
   const payload = JSON.stringify({
     valor: randomValorTransacao(),
-    tipo: 'd',
+    tipo: 'd',  // 'd' indicates debit
     descricao: randomDescricao(),
   });
   
-  const res = http.post(
-    `${baseUrl}/clientes/${randomClienteId()}/transacoes`,
-    payload,
-    { headers: { 'Content-Type': 'application/json' } }
-  );
+  const url = `${baseUrl}/clientes/${randomClienteId()}/transacoes`;
+  const res = http.post(url, payload, {
+    headers: { 'Content-Type': 'application/json' },
+    tags: { endpoint: '/clientes/:id/transacoes' },
+  });
 
+  // Record response duration specifically for debitos.
+  debitosTrend.add(res.timings.duration);
+
+  // Check if status is either 200 OK or 422 for invalid/debit cases.
   check(res, {
     'status 200 or 422': (r) => [200, 422].includes(r.status),
   });
 
+  // Validate JSON response if status is 200.
   if (res.status === 200) {
     check(res, {
       'Consistência saldo/limite': (r) => {
@@ -107,23 +138,30 @@ export function debitos() {
   }
 }
 
+// -----------------------------------------------------------------------------
+// Test function for credit transactions
+// -----------------------------------------------------------------------------
 export function creditos() {
   const payload = JSON.stringify({
     valor: randomValorTransacao(),
-    tipo: 'c',
+    tipo: 'c',  // 'c' indicates credit
     descricao: randomDescricao(),
   });
 
-  const res = http.post(
-    `${baseUrl}/clientes/${randomClienteId()}/transacoes`,
-    payload,
-    { headers: { 'Content-Type': 'application/json' } }
-  );
+  const url = `${baseUrl}/clientes/${randomClienteId()}/transacoes`;
+  const res = http.post(url, payload, {
+    headers: { 'Content-Type': 'application/json' },
+    tags: { endpoint: '/clientes/:id/transacoes' },
+  });
+
+  // Record response duration specifically for creditos.
+  creditosTrend.add(res.timings.duration);
 
   check(res, {
     'status 200': (r) => r.status === 200,
   });
 
+  // Validate if status is 200 then check JSON consistency.
   if (res.status === 200) {
     check(res, {
       'Consistência saldo/limite': (r) => {
@@ -139,13 +177,23 @@ export function creditos() {
   }
 }
 
+// -----------------------------------------------------------------------------
+// Test function for fetching client statements (extratos)
+// -----------------------------------------------------------------------------
 export function extratos() {
-  const res = http.get(`${baseUrl}/clientes/${randomClienteId()}/extrato`);
+  const url = `${baseUrl}/clientes/${randomClienteId()}/extrato`;
+  const res = http.get(url, {
+    tags: { endpoint: '/clientes/:id/extrato' },
+  });
   
+  // Record response duration specifically for extratos.
+  extratosTrend.add(res.timings.duration);
+
   check(res, {
     'status 200': (r) => r.status === 200,
   });
 
+  // Validate that the statement's balance and limit are consistent.
   if (res.status === 200) {
     check(res, {
       'Consistência extrato': (r) => {
@@ -162,59 +210,77 @@ export function extratos() {
   }
 }
 
+// -----------------------------------------------------------------------------
+// Test function for validations that includes multiple steps.
+// -----------------------------------------------------------------------------
 export function validacoes() {
-  // Each VU uses a client from the shared array based on __VU index.
+  // Each virtual user accesses a different client from our SharedArray.
   const index = (__VU - 1) % saldosIniciaisClientes.length;
   const cliente = saldosIniciaisClientes[index];
   
   group('Validações cliente', () => {
-    // Confirm initial client state (saldo.total should be 0)
-    let res = http.get(`${baseUrl}/clientes/${cliente.id}/extrato`);
+    let url = `${baseUrl}/clientes/${cliente.id}/extrato`;
+    // GET request to check the client's current statement.
+    let res = http.get(url, { tags: { endpoint: '/clientes/:id/extrato' } });
+    validacoesTrend.add(res.timings.duration);
     check(res, {
       'status 200': (r) => r.status === 200,
       'limite correto': (r) => r.json('saldo.limite') === cliente.limite,
       'saldo inicial 0': (r) => r.json('saldo.total') === 0,
     });
 
-    // Execute 2 transactions in sequence: a credit ("toma") then a debit ("devolve")
+    url = `${baseUrl}/clientes/${cliente.id}/transacoes`;
+    // POST a credit transaction.
     res = http.post(
-      `${baseUrl}/clientes/${cliente.id}/transacoes`,
+      url,
       JSON.stringify({ valor: 1, tipo: 'c', descricao: 'toma' }),
-      { headers: { 'Content-Type': 'application/json' } }
+      {
+        headers: { 'Content-Type': 'application/json' },
+        tags: { endpoint: '/clientes/:id/transacoes' },
+      }
     );
+    validacoesTrend.add(res.timings.duration);
     check(res, {
       'status 200': (r) => r.status === 200,
-      'Consistência saldo/limite': (r) => validateSaldoLimite(r.json('saldo'), r.json('limite')),
+      'Consistência saldo/limite': (r) =>
+        validateSaldoLimite(r.json('saldo'), r.json('limite')),
     });
 
+    // POST a debit transaction.
     res = http.post(
-      `${baseUrl}/clientes/${cliente.id}/transacoes`,
+      url,
       JSON.stringify({ valor: 1, tipo: 'd', descricao: 'devolve' }),
-      { headers: { 'Content-Type': 'application/json' } }
+      {
+        headers: { 'Content-Type': 'application/json' },
+        tags: { endpoint: '/clientes/:id/transacoes' },
+      }
     );
+    validacoesTrend.add(res.timings.duration);
     check(res, {
       'status 200': (r) => r.status === 200,
-      'Consistência saldo/limite': (r) => validateSaldoLimite(r.json('saldo'), r.json('limite')),
+      'Consistência saldo/limite': (r) =>
+        validateSaldoLimite(r.json('saldo'), r.json('limite')),
     });
 
-    // Allow a pause for transactions to be properly processed
     sleep(1);
 
-    // Validate that the latest extrato shows the two transactions in the expected order.
-    res = http.get(`${baseUrl}/clientes/${cliente.id}/extrato`);
+    url = `${baseUrl}/clientes/${cliente.id}/extrato`;
+    // GET request to verify recent transactions.
+    res = http.get(url, { tags: { endpoint: '/clientes/:id/extrato' } });
+    validacoesTrend.add(res.timings.duration);
     check(res, {
       'transações recentes': (r) => {
         const transacoes = r.json('ultimas_transacoes');
         return transacoes &&
-               transacoes.length >= 2 &&
-               transacoes[0].descricao === 'devolve' &&
-               transacoes[0].tipo === 'd' &&
-               transacoes[1].descricao === 'toma' &&
-               transacoes[1].tipo === 'c';
+          transacoes.length >= 2 &&
+          transacoes[0].descricao === 'devolve' &&
+          transacoes[0].tipo === 'd' &&
+          transacoes[1].descricao === 'toma' &&
+          transacoes[1].tipo === 'c';
       },
     });
 
-    // Execute invalid requests; allow either 422 or 400 as valid responses
+    // Testing invalid requests with various incorrect inputs.
     const invalidRequests = [
       { valor: 1.2, tipo: 'd', descricao: 'devolve', expectedStatus: 422 },
       { valor: 1, tipo: 'x', descricao: 'devolve', expectedStatus: 422 },
@@ -224,11 +290,12 @@ export function validacoes() {
     ];
 
     invalidRequests.forEach((req) => {
-      res = http.post(
-        `${baseUrl}/clientes/${cliente.id}/transacoes`,
-        JSON.stringify(req),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      url = `${baseUrl}/clientes/${cliente.id}/transacoes`;
+      res = http.post(url, JSON.stringify(req), {
+        headers: { 'Content-Type': 'application/json' },
+        tags: { endpoint: '/clientes/:id/transacoes' },
+      });
+      validacoesTrend.add(res.timings.duration);
       check(res, {
         [`status ${req.expectedStatus}`]: (r) =>
           r.status === req.expectedStatus || r.status === 400,
@@ -237,9 +304,32 @@ export function validacoes() {
   });
 }
 
+// -----------------------------------------------------------------------------
+// Test for client not found scenario.
+// It confirms that querying for a non-existent client (id 6) returns a 404.
+// -----------------------------------------------------------------------------
 export function cliente_nao_encontrado() {
-  const res = http.get(`${baseUrl}/clientes/6/extrato`);
+  const url = `${baseUrl}/clientes/6/extrato`;
+  const res = http.get(url, { tags: { endpoint: '/clientes/:id/extrato' } });
+  clienteNaoEncontradoTrend.add(res.timings.duration);
   check(res, {
     'status 404': (r) => r.status === 404,
   });
+}
+
+// -----------------------------------------------------------------------------
+// Customize summary output to display only custom trend metrics.
+// -----------------------------------------------------------------------------
+export function handleSummary(data) {
+  const myTrends = {
+    debitos_duration: data.metrics.debitos_duration,
+    creditos_duration: data.metrics.creditos_duration,
+    extratos_duration: data.metrics.extratos_duration,
+    validacoes_duration: data.metrics.validacoes_duration,
+    cliente_nao_encontrado_duration: data.metrics.cliente_nao_encontrado_duration,
+  };
+
+  return {
+    stdout: JSON.stringify(myTrends, null, 2),
+  };
 }

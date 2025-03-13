@@ -37,7 +37,7 @@ builder.Services.AddOpenTelemetry()
 #endif
 
 builder.Services.AddNpgsqlDataSource(
-    builder.Configuration.GetConnectionString("DefaultConnection")!
+    Environment.GetEnvironmentVariable("DATABASE_URL")!
 );
 
 builder.Services.AddHealthChecks();

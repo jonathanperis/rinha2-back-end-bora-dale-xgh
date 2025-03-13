@@ -6,13 +6,14 @@ services:
     image: jonathanperis/rinha2-back-end-bora-dale-xgh:latest
     hostname: webapi1
     container_name: webapi-1
-    depends_on: 
-      - db
+    depends_on:
+      db:
+        condition: service_healthy
     restart: always      
-    environment: &env
-      ASPNETCORE_URLS: http://*:8080
-      ConnectionStrings__DefaultConnection: Host=localhost;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
-    network_mode: host
+    environment:
+      DATABASE_URL: Host=localhost;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
+    ports:
+      - "8081:8080"
     deploy:
       resources:
         limits:
@@ -23,9 +24,8 @@ services:
     <<: *webapi1
     hostname: webapi2
     container_name: webapi-2
-    environment:
-      <<: *env
-      ASPNETCORE_URLS: http://*:8081
+    ports:
+      - "8082:8080"
 
   db:
     image: postgres
@@ -38,7 +38,13 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: rinha
-    network_mode: host
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5      
     deploy:
       resources:
         limits:
@@ -55,9 +61,8 @@ services:
     depends_on: 
       - webapi1
       - webapi2
-    expose: 
-      - 9999
-    network_mode: host
+    ports:
+      - "9999:9999"
     deploy:
       resources:
         limits:
@@ -69,6 +74,7 @@ services:
     container_name: k6
     user: root
     environment:
+      - BASE_URL=http://nginx:9999
       - K6_WEB_DASHBOARD=true
       - K6_WEB_DASHBOARD_EXPORT=./reports/stress-test-report.html
     volumes:
@@ -82,4 +88,3 @@ services:
     entrypoint: ["/bin/sh", "/app/run-rinha-test.sh"]
     ports:
       - "5665:5665"
-    network_mode: host
