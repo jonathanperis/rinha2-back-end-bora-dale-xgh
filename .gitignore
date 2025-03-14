@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 # OSX Feelings
 *.DS_Store
+
+# Solution file
+*.sln
