@@ -21,6 +21,8 @@ services:
     restart: always      
     environment:
       DATABASE_URL: Host=db;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
+    ports:
+      - "5000:8080"
     deploy:
       resources:
         limits:
@@ -33,6 +35,8 @@ services:
     <<: *webapi1
     hostname: webapi2-dotnet
     container_name: webapi-2-dotnet
+    ports:
+      - "5001:8080"
 
   db:
     image: postgres
