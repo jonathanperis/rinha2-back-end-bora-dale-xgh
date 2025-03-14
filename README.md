@@ -21,15 +21,13 @@ docker-compose up -d nginx
 
 ## Resultados
 
-### Resultado do Gatling em produção (sim, é só dotnet. Mas eu gosto! XD)
-
-![Gatling-Prod](docs/screenshots/gatling-prod.png)
-
 ### Resultado do Gatling local
 
 Todas requisições abaixo de 800ms. (Estes testes utilizaram um máximo de 250MB RAM distribuidos entre os recursos. 60% menos recurso de memória RAM do que o permitido pela rinha!
 
-![Gatling](docs/screenshots/gatling.png)
+![Gatling](docs/screenshots/gatling-1.png)
+
+![Gatling](docs/screenshots/gatling-2.png)
 
 ## Métricas dos testes
 
