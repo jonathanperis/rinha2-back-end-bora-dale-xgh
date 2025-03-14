@@ -35,17 +35,17 @@ Métricas colhidas no Docker Desktop após a execução do teste. O teste foi ex
 
 - Banco de dados (Postgresql)
 
-![Banco de dados](docs/screenshots/metrica-banco-de-dados.jpeg)
+![Banco de dados](docs/screenshots/metrica-banco-de-dados.png)
 
 - Endpoints (.NET)
 
-![Endpoint 1 da API](docs/screenshots/metrica-api-endpoint-1.jpeg)
+![Endpoint 1 da API](docs/screenshots/metrica-api-endpoint-1.png)
 
-![Endpoint 1 da API](docs/screenshots/metrica-api-endpoint-2.jpeg)
+![Endpoint 1 da API](docs/screenshots/metrica-api-endpoint-2.png)
 
 - Proxy reverso (Nginx)
 
-![Proxy reverso](docs/screenshots/metrica-proxy-reverso.jpeg)
+![Proxy reverso](docs/screenshots/metrica-proxy-reverso.png)
 
 Este repositorio foi desenvolvido utilizando de minha experiencia profissional e inspirado nos seguintes colegas da rinha:
 
