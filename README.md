@@ -16,7 +16,7 @@ Versão C# da [rinha de backend 2ª edição - 2024/Q1](https://github.com/zanfr
 ## Rodando o projeto
 
 ```bash
-docker-compose up -d nginx
+docker compose up nginx -d --build
 ```
 
 ## Resultados
