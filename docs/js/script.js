@@ -6,7 +6,7 @@ console.log("Rinha de Backend page loaded.");
 // Currently, the report links are set to refer to blank pages until real reports are generated.
 const reportsList = document.getElementById('reports-list');
 if (reportsList) {
-  const apiUrl = 'https://api.github.com/repos/jonathanperis/rinha2-back-end-bora-dale-xgh/contents/docs/reports?ref=main';
+  const apiUrl = 'https://api.github.com/repos/jonathanperis/rinha2-back-end-bora-dale-xgh-dotnet/contents/docs/reports?ref=main';
   
   fetch(apiUrl)
     .then(response => response.json())
@@ -26,7 +26,7 @@ if (reportsList) {
       
       htmlFiles.forEach(file => {
         // Generating a public URL for GitHub Pages (docs folder is served as the site)
-        const publicUrl = `https://jonathanperis.github.io/rinha2-back-end-bora-dale-xgh/reports/${file.name}`;
+        const publicUrl = `https://jonathanperis.github.io/rinha2-back-end-bora-dale-xgh-dotnet/reports/${file.name}`;
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.href = publicUrl;

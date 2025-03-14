@@ -1,9 +1,9 @@
-name: 'rinha2-jonathanperis-xgh-bora-dale'
+name: 'rinha2-jonathanperis-xgh-bora-dale-dotnet'
 
 services:
 
-  webapi1: &webapi1
-    # image: jonathanperis/rinha2-back-end-bora-dale-xgh:latest
+  webapi1-dotnet: &webapi1
+    # image: jonathanperis/rinha2-back-end-bora-dale-xgh-dotnet:latest
     build:
       context: ./src/
       dockerfile: ./WebApi/Dockerfile
@@ -13,8 +13,8 @@ services:
         EXTRA_OPTIMIZE: true
         BUILD_ARCHITECTURE: linux-arm64
         BUILD_CONFIGURATION: Release      
-    hostname: webapi1
-    container_name: webapi-1
+    hostname: webapi1-dotnet
+    container_name: webapi-1-dotnet
     depends_on:
       db:
         condition: service_healthy
@@ -27,12 +27,12 @@ services:
           cpus: "0.4"
           memory: "100MB"
     networks:
-    - network-bora-dale-xgh
+    - network-bora-dale-xgh-dotnet
 
-  webapi2:
+  webapi2-dotnet:
     <<: *webapi1
-    hostname: webapi2
-    container_name: webapi-2
+    hostname: webapi2-dotnet
+    container_name: webapi-2-dotnet
 
   db:
     image: postgres
@@ -62,7 +62,7 @@ services:
           memory: "330MB"
     command: postgres -c checkpoint_timeout=600 -c max_wal_size=4096 -c synchronous_commit=0 -c fsync=0 -c full_page_writes=0
     networks:
-    - network-bora-dale-xgh
+    - network-bora-dale-xgh-dotnet
 
   nginx:
     image: nginx
@@ -71,8 +71,8 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on: 
-      - webapi1
-      - webapi2
+      - webapi1-dotnet
+      - webapi2-dotnet
     ports:
       - "9999:9999"
     deploy:
@@ -81,7 +81,7 @@ services:
           cpus: "0.2"
           memory: "20MB"
     networks:
-    - network-bora-dale-xgh
+    - network-bora-dale-xgh-dotnet
 
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter 
@@ -91,7 +91,7 @@ services:
     environment:
       DATA_SOURCE_NAME: "postgresql://postgres:postgres@db:5432/rinha?sslmode=disable"
     networks:
-    - network-bora-dale-xgh
+    - network-bora-dale-xgh-dotnet
 
   prometheus:
     image: prom/prometheus
@@ -102,7 +102,7 @@ services:
       - prometheus-rinha-data:/prometheus
       - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
     networks:
-    - network-bora-dale-xgh
+    - network-bora-dale-xgh-dotnet
 
   grafana:
     image: grafana/grafana
@@ -119,7 +119,7 @@ services:
     depends_on:
       - prometheus
     networks:
-    - network-bora-dale-xgh
+    - network-bora-dale-xgh-dotnet
 
   influxdb:
     image: influxdb:2.0-alpine
@@ -137,7 +137,7 @@ services:
       - DOCKER_INFLUXDB_INIT_BUCKET=demo
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=EEKpryGZk8pVDXmIuy484BKUxM5jOEDv7YNoeNZUbsNbpbPbP6kK_qY9Zsyw7zNnlZ7pHG16FYzNaqwLMBUz8g==
     networks:
-      - network-bora-dale-xgh
+      - network-bora-dale-xgh-dotnet
 
   k6:
     # image: grafana/k6
@@ -166,7 +166,7 @@ services:
     ports:
       - "5665:5665"
     networks:
-      - network-bora-dale-xgh
+      - network-bora-dale-xgh-dotnet
 
   # pgadmin:
   #   image: dpage/pgadmin4
@@ -180,10 +180,10 @@ services:
   #     PGADMIN_DEFAULT_PASSWORD: "admin"
   #     PGADMIN_LISTEN_PORT: 5050
   #   networks:
-  #   - network-bora-dale-xgh
+  #   - network-bora-dale-xgh-dotnet
 
 networks:
-  network-bora-dale-xgh:
+  network-bora-dale-xgh-dotnet:
     driver: bridge
 
 volumes:
