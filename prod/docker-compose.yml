@@ -70,21 +70,17 @@ services:
           memory: "20MB"
 
   k6:
-    image: grafana/k6
+    image: jonathanperis/rinha2-back-end-bora-dale-xgh-k6:latest
     container_name: k6
-    user: root
     environment:
+      # Set MODE=dev to export data via xk6-influxdb, or MODE=prod to generate an HTML report.
+      - MODE=prod
       - BASE_URL=http://nginx:9999
       - K6_WEB_DASHBOARD=true
       - K6_WEB_DASHBOARD_EXPORT=./reports/stress-test-report.html
     volumes:
-      - "./conf/stress-test:/app"
-      - "./conf/stress-test/reports:/app/reports"
-    working_dir: /app
-    tty: true
-    stdin_open: true
+      - "./conf/stress-test/reports:/app/reports"      
     depends_on:
-      - nginx
-    entrypoint: ["/bin/sh", "/app/run-rinha-test.sh"]
+      - nginx    
     ports:
       - "5665:5665"
