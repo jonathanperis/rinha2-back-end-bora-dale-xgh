@@ -22,7 +22,7 @@ services:
     environment:
       DATABASE_URL: Host=db;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
     ports:
-      - "5000:8080"
+      - "5010:8080"
     deploy:
       resources:
         limits:
@@ -36,7 +36,7 @@ services:
     hostname: webapi2-dotnet
     container_name: webapi-2-dotnet
     ports:
-      - "5001:8080"
+      - "5011:8080"
 
   db:
     image: postgres
@@ -144,12 +144,11 @@ services:
       - network-bora-dale-xgh-dotnet
 
   k6:
-    # image: grafana/k6
-    build:
-      context: ./test/
-      dockerfile: ./stress-test/Dockerfile
+    image: jonathanperis/rinha2-back-end-bora-dale-xgh-k6:latest
     container_name: k6
     environment:
+      # Set MODE=dev to export data via xk6-influxdb, or MODE=prod to generate an HTML report.
+      - MODE=dev
       - BASE_URL=http://nginx:9999
       - K6_WEB_DASHBOARD=true
       - K6_INFLUXDB_ADDR=http://influxdb:8086
@@ -157,16 +156,10 @@ services:
       - K6_INFLUXDB_BUCKET=demo
       - K6_INFLUXDB_INSECURE=true
       - K6_INFLUXDB_TOKEN=EEKpryGZk8pVDXmIuy484BKUxM5jOEDv7YNoeNZUbsNbpbPbP6kK_qY9Zsyw7zNnlZ7pHG16FYzNaqwLMBUz8g==      
-    volumes:
-      - "./test/stress-test:/app"
-    working_dir: /app
-    tty: true
-    stdin_open: true
     depends_on:
       - nginx
       - grafana 
       - influxdb      
-    entrypoint: ["/bin/sh", "/app/run-rinha-test.sh"]
     ports:
       - "5665:5665"
     networks:
