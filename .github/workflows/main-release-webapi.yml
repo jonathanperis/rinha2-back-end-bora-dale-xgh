@@ -69,6 +69,7 @@ jobs:
           file: ./src/WebApi/Dockerfile
           push: true
           tags: jonathanperis/rinha2-back-end-bora-dale-xgh-dotnet:latest
+          platforms: linux/amd64,linux/arm64/v8          
           build-args: |
             AOT=${{ env.AOT }}
             TRIM=${{ env.TRIM }}
