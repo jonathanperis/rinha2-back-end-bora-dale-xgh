@@ -14,24 +14,23 @@ RUN apt-get update \
 ARG AOT
 ARG TRIM
 ARG EXTRA_OPTIMIZE
-ARG BUILD_ARCHITECTURE
 ARG BUILD_CONFIGURATION
 
 WORKDIR /src
 
 COPY ["WebApi/WebApi.csproj", "WebApi/"]
 
-RUN dotnet restore -r $BUILD_ARCHITECTURE "./WebApi/WebApi.csproj" -p:Configuration=${BUILD_CONFIGURATION} -p:AOT=${AOT} -p:Trim=${TRIM}
+RUN dotnet restore "./WebApi/WebApi.csproj" -p:Configuration=${BUILD_CONFIGURATION} -p:AOT=${AOT} -p:Trim=${TRIM}
 
 COPY . .
 
 WORKDIR "/src/WebApi"
 
-RUN dotnet build -r $BUILD_ARCHITECTURE "WebApi.csproj" -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/build
+RUN dotnet build "WebApi.csproj" -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/build
 
 FROM build AS publish
 
-RUN dotnet publish -r $BUILD_ARCHITECTURE "WebApi.csproj" --no-restore -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/publish
+RUN dotnet publish "WebApi.csproj" --no-restore -c $BUILD_CONFIGURATION -p:AOT=${AOT} -p:Trim=${TRIM} -p:ExtraOptimize=${EXTRA_OPTIMIZE} -o /app/publish
 
 FROM base AS final
 

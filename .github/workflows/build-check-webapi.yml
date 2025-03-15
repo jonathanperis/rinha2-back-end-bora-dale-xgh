@@ -9,7 +9,6 @@ env:
   AOT: true
   TRIM: false
   EXTRA_OPTIMIZE: true
-  BUILD_ARCHITECTURE: linux-x64
   BUILD_CONFIGURATION: Release   
 
 jobs:
@@ -31,10 +30,10 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore -r ${{ env.BUILD_ARCHITECTURE }} "WebApi.csproj" -p:Configuration=${${{ env.BUILD_CONFIGURATION }}} -p:AOT=${${{ env.AOT }}} -p:Trim=${${{ env.TRIM }}}
+        run: dotnet restore "WebApi.csproj" -p:Configuration=${${{ env.BUILD_CONFIGURATION }}} -p:AOT=${${{ env.AOT }}} -p:Trim=${${{ env.TRIM }}}
 
       - name: Build Application
-        run: dotnet build -r ${{ env.BUILD_ARCHITECTURE }} "WebApi.csproj" -c ${{ env.BUILD_CONFIGURATION }} -p:AOT=${${{ env.AOT }}} -p:Trim=${${{ env.TRIM }}} -p:ExtraOptimize=${${{ env.EXTRA_OPTIMIZE }}}
+        run: dotnet build "WebApi.csproj" -c ${{ env.BUILD_CONFIGURATION }} -p:AOT=${${{ env.AOT }}} -p:Trim=${${{ env.TRIM }}} -p:ExtraOptimize=${${{ env.EXTRA_OPTIMIZE }}}
 
   container-test:
     needs: setup-build-test
