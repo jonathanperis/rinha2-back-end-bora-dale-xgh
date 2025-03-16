@@ -11,7 +11,7 @@ services:
         condition: service_healthy
     restart: always      
     environment:
-      DATABASE_URL: Host=localhost;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
+      DATABASE_URL: Host=db;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
     ports:
       - "8081:8080"
     deploy:
@@ -19,7 +19,7 @@ services:
         limits:
           cpus: "0.4"
           memory: "100MB"
-  
+
   webapi2-dotnet:
     <<: *webapi1
     hostname: webapi2-dotnet
