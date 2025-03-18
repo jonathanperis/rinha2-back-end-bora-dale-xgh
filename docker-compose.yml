@@ -3,7 +3,7 @@ name: 'rinha2-jonathanperis-xgh-bora-dale-dotnet'
 services:
 
   webapi1-dotnet: &webapi1
-    # image: jonathanperis/rinha2-back-end-bora-dale-xgh-dotnet:latest
+    # image: jonathanperis/rinha2-back-end-dotnet:latest
     build:
       context: ./src/
       dockerfile: ./WebApi/Dockerfile
@@ -130,7 +130,7 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=EEKpryGZk8pVDXmIuy484BKUxM5jOEDv7YNoeNZUbsNbpbPbP6kK_qY9Zsyw7zNnlZ7pHG16FYzNaqwLMBUz8g==
 
   k6:
-    image: jonathanperis/rinha2-back-end-bora-dale-xgh-k6:latest
+    image: jonathanperis/rinha2-back-end-k6:latest
     container_name: k6
     environment:
       # Set MODE=dev to export data via xk6-influxdb, or MODE=prod to generate an HTML report.

@@ -51,10 +51,10 @@ Métricas colhidas no Docker Desktop após a execução do teste. O teste foi ex
 
 ### Implementações que elaborei em outras linguagens
 
-- [rinha2-back-end-bora-dale-xgh-go](https://github.com/jonathanperis/rinha2-back-end-bora-dale-xgh-go)
-- [rinha2-back-end-bora-dale-xgh-rust](https://github.com/jonathanperis/rinha2-back-end-bora-dale-xgh-rust)
-- [rinha2-back-end-bora-dale-xgh-python](https://github.com/jonathanperis/rinha2-back-end-bora-dale-xgh-python)
-- [rinha2-back-end-bora-dale-xgh-postgrest](https://github.com/jonathanperis/rinha2-back-end-bora-dale-xgh-postgrest)
+- [rinha2-back-end-go](https://github.com/jonathanperis/rinha2-back-end-go)
+- [rinha2-back-end-rust](https://github.com/jonathanperis/rinha2-back-end-rust)
+- [rinha2-back-end-python](https://github.com/jonathanperis/rinha2-back-end-python)
+- [rinha2-back-end-postgrest](https://github.com/jonathanperis/rinha2-back-end-postgrest)
 
 Este repositorio foi desenvolvido utilizando de minha experiencia profissional e inspirado nos seguintes colegas da rinha:
 

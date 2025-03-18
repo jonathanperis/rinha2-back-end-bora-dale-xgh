@@ -67,7 +67,7 @@ jobs:
           context: ./src/
           file: ./src/WebApi/Dockerfile
           push: true
-          tags: jonathanperis/rinha2-back-end-bora-dale-xgh-dotnet:latest
+          tags: jonathanperis/rinha2-back-end-dotnet:latest
           platforms: linux/amd64,linux/arm64/v8          
           build-args: |
             AOT=${{ env.AOT }}
@@ -145,7 +145,7 @@ jobs:
           REPORT_NAME="stress-test-report-${TIMESTAMP}.html"
           
           # Clone the main repository into a temporary folder using the GITHUB_TOKEN for authentication
-          git clone https://x-access-token:${GITHUB_TOKEN}@github.com/jonathanperis/rinha2-back-end-bora-dale-xgh-dotnet.git repo-temp
+          git clone https://x-access-token:${GITHUB_TOKEN}@github.com/jonathanperis/rinha2-back-end-dotnet.git repo-temp
           cd repo-temp
           
           # Create the destination folder under docs/reports
