@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 #if !EXTRAOPTIMIZE
+using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
-using OpenTelemetry.ResourceDetectors.Container;
-using OpenTelemetry.ResourceDetectors.Host;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 #endif
@@ -19,21 +19,71 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 #if !EXTRAOPTIMIZE
-Action<ResourceBuilder> appResourceBuilder =
-    resource => resource
-        .AddDetector(new ContainerResourceDetector())
-        .AddDetector(new HostDetector());
+// Build a resource configuration action to set service information.
+Action<ResourceBuilder> configureResource = r => r.AddService(
+    serviceName: builder.Configuration.GetValue("ServiceName", defaultValue: "otel-test")!,
+    serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
+    serviceInstanceId: Environment.MachineName);
 
+// Configure OpenTelemetry tracing & metrics with auto-start using the
+// AddOpenTelemetry extension from OpenTelemetry.Extensions.Hosting.
 builder.Services.AddOpenTelemetry()
-    .ConfigureResource(appResourceBuilder)
-    .WithTracing(tracerBuilder => tracerBuilder
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation())
-    .WithMetrics(meterBuilder => meterBuilder
-        .AddProcessInstrumentation()
-        .AddRuntimeInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddPrometheusExporter());  
+    .ConfigureResource(configureResource)
+    .WithTracing(tpb =>
+    {
+        tpb
+            .AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation();
+
+        // Use IConfiguration binding for AspNetCore instrumentation options.
+        builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(builder.Configuration.GetSection("AspNetCoreInstrumentation"));
+
+        tpb.AddOtlpExporter(otlpOptions =>
+        {
+            // Use IConfiguration binding for AspNetCore instrumentation options.
+            otlpOptions.Endpoint = new Uri(builder.Configuration.GetValue("Otlp:Endpoint", defaultValue: "http://localhost:4317")!);
+        });
+    })
+    .WithMetrics(mpb =>
+    {
+        mpb
+            .AddProcessInstrumentation()
+            .AddRuntimeInstrumentation()      
+            .AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation();
+
+        mpb.AddOtlpExporter(otlpOptions =>
+        {
+            // Use IConfiguration binding for AspNetCore instrumentation options.
+            otlpOptions.Endpoint = new Uri(builder.Configuration.GetValue("Otlp:Endpoint", defaultValue: "http://localhost:4317")!);
+        });
+    });
+
+// Clear default logging providers used by WebApplication host.
+builder.Logging.ClearProviders();
+
+// Configure OpenTelemetry Logging.
+builder.Logging.AddOpenTelemetry(options =>
+{
+    // Note: See appsettings.json Logging:OpenTelemetry section for configuration.
+
+    var resourceBuilder = ResourceBuilder.CreateDefault();
+    configureResource(resourceBuilder);
+    options.SetResourceBuilder(resourceBuilder);
+
+    options.IncludeFormattedMessage = true;
+    options.IncludeScopes = true;
+    options.ParseStateValues = true;
+
+    options.AddOtlpExporter(otlpOptions =>
+    {
+        // Use IConfiguration binding for AspNetCore instrumentation options.
+        otlpOptions.Endpoint = new Uri(builder.Configuration.GetValue("Otlp:Endpoint", defaultValue: "http://localhost:4317")!);
+    });
+
+    // Add the Console exporter for local debugging.
+    // options.AddConsoleExporter();    
+});
 #endif
 
 builder.Services.AddNpgsqlDataSource(
@@ -45,7 +95,7 @@ builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 #if !EXTRAOPTIMIZE
-app.MapPrometheusScrapingEndpoint();
+// app.MapPrometheusScrapingEndpoint();
 #endif
 
 var clientes = new Dictionary<int, int>
@@ -59,13 +109,17 @@ var clientes = new Dictionary<int, int>
 
 app.MapHealthChecks("/healthz");
 
-app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDataSource dataSource) =>
+app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] ILogger<Program> logger, [FromServices] NpgsqlDataSource dataSource) =>
 {
     if (!clientes.TryGetValue(id, out _))
         return Results.NotFound();
         
     await using (var cmd = dataSource.CreateCommand())
     {
+#if !EXTRAOPTIMIZE
+        logger.LogInformation("Starting GetSaldoClienteById for clientId: {id}", id);
+#endif
+
         cmd.CommandText = "SELECT * FROM GetSaldoClienteById($1)";
         cmd.Parameters.AddWithValue(id);
 
@@ -80,11 +134,15 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDat
 
         var extrato = new ExtratoDto(saldo, ultimasTransacoes);
 
+#if !EXTRAOPTIMIZE
+        logger.LogInformation("Finished GetSaldoClienteById for clientId: {id}", id);
+#endif
+
         return Results.Ok(extrato);
     }
 });
 
-app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] TransacaoDto transacao, [FromServices] NpgsqlDataSource dataSource) =>
+app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] TransacaoDto transacao, [FromServices] ILogger<Program> logger, [FromServices] NpgsqlDataSource dataSource) =>
 {
     if (!clientes.TryGetValue(id, out int limite))
         return Results.NotFound();
@@ -93,7 +151,11 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] Transacao
         return Results.UnprocessableEntity();
 
     await using (var cmd = dataSource.CreateCommand())
-    {      
+    {     
+#if !EXTRAOPTIMIZE
+        logger.LogInformation("Starting InsertTransacao for clientId: {id}", id);
+#endif   
+
         cmd.CommandText = "SELECT InsertTransacao($1, $2, $3, $4)";
         cmd.Parameters.AddWithValue(id);
         cmd.Parameters.AddWithValue(transacao.Valor);
@@ -106,6 +168,10 @@ app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] Transacao
             return Results.UnprocessableEntity();
 
         var updatedSaldo = reader.GetInt32(0);
+
+#if !EXTRAOPTIMIZE
+        logger.LogInformation("Finished InsertTransacao for clientId: {id}", id);
+#endif
 
         return Results.Ok(new ClienteDto(id, limite, updatedSaldo)); 
     }

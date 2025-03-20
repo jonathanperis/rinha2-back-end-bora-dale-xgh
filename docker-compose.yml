@@ -1,4 +1,4 @@
-name: 'rinha2-jonathanperis-xgh-bora-dale-dotnet'
+name: 'rinha2-back-end-dotnet'
 
 services:
 
@@ -10,16 +10,18 @@ services:
       args:
         AOT: true
         TRIM: false
-        EXTRA_OPTIMIZE: true
-        BUILD_ARCHITECTURE: linux-arm64
+        EXTRA_OPTIMIZE: false
         BUILD_CONFIGURATION: Release      
-    hostname: webapi1-dotnet
-    container_name: webapi-1-dotnet
+    container_name: webapi-1-dotnet-rinha
     depends_on:
-      db:
-        condition: service_healthy
+      - otel-lgtm
+      - db
+      # db:
+      #     condition: service_healthy
     restart: always      
     environment:
+      Otlp__Endpoint: http://otel-lgtm:4317
+      OTEL_METRIC_EXPORT_INTERVAL: 5000
       DATABASE_URL: Host=db;Username=postgres;Password=postgres;Database=rinha;Minimum Pool Size=10;Maximum Pool Size=10;Multiplexing=true;
     ports:
       - "5010:8080"
@@ -31,20 +33,18 @@ services:
 
   webapi2-dotnet:
     <<: *webapi1
-    hostname: webapi2-dotnet
-    container_name: webapi-2-dotnet
+    container_name: webapi-2-dotnet-rinha
     ports:
       - "5011:8080"
 
   db:
     image: postgres
-    hostname: db
     container_name: db-rinha
     restart: always
-    depends_on:
-      - postgres-exporter      
+    # depends_on:
+    #   - postgres-exporter      
     volumes:
-      - db-rinha-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_USER: postgres
@@ -66,7 +66,6 @@ services:
 
   nginx:
     image: nginx
-    hostname: nginx
     container_name: nginx-rinha
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
@@ -81,46 +80,45 @@ services:
           cpus: "0.2"
           memory: "20MB"
 
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter 
-    container_name: postgres-exporter-rinha
-    ports:
-      - 9187:9187
-    environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:postgres@db:5432/rinha?sslmode=disable"
+  # postgres-exporter:
+  #   image: prometheuscommunity/postgres-exporter 
+  #   container_name: postgres-exporter-rinha
+  #   ports:
+  #     - 9187:9187
+  #   environment:
+  #     DATA_SOURCE_NAME: "postgresql://postgres:postgres@db:5432/rinha?sslmode=disable"
 
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus-rinha
-    ports:
-      - "9090:9090"
-    volumes:
-      - prometheus-rinha-data:/prometheus
-      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+  # prometheus:
+  #   image: prom/prometheus
+  #   container_name: prometheus-rinha
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - prometheus-data:/prometheus
+  #     - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
 
-  grafana:
-    image: grafana/grafana
-    container_name: grafana-rinha
-    environment:
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_BASIC_ENABLED=false
-    ports:
-      - "3000:3000"
-    volumes:
-      - "./grafana/provisioning/:/etc/grafana/provisioning/"
-      - "./grafana/dashboards/:/var/lib/grafana/dashboards/"
-    depends_on:
-      - prometheus
+  # grafana:
+  #   image: grafana/grafana
+  #   container_name: grafana-rinha
+  #   environment:
+  #     - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  #     - GF_AUTH_ANONYMOUS_ENABLED=true
+  #     - GF_AUTH_BASIC_ENABLED=false
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - "./grafana/provisioning/:/etc/grafana/provisioning/"
+  #     - "./grafana/dashboards/:/var/lib/grafana/dashboards/"
+  #   depends_on:
+  #     - prometheus
 
   influxdb:
     image: influxdb:2.0-alpine
-    hostname: influxdb
     container_name: influxdb-rinha
     ports:
       - "8086:8086"
     volumes:
-      - influxdb-rinha-data:/var/lib/influxdb2
+      - influxdb-data:/var/lib/influxdb2
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_USERNAME=admin
@@ -131,7 +129,7 @@ services:
 
   k6:
     image: jonathanperis/rinha2-back-end-k6:latest
-    container_name: k6
+    container_name: k6-rinha
     environment:
       # Set MODE=dev to export data via xk6-influxdb, or MODE=prod to generate an HTML report.
       - MODE=dev
@@ -144,10 +142,20 @@ services:
       - K6_INFLUXDB_TOKEN=EEKpryGZk8pVDXmIuy484BKUxM5jOEDv7YNoeNZUbsNbpbPbP6kK_qY9Zsyw7zNnlZ7pHG16FYzNaqwLMBUz8g==      
     depends_on:
       - nginx
-      - grafana 
+      - otel-lgtm 
       - influxdb      
     ports:
       - "5665:5665"
+
+  otel-lgtm:
+    image: grafana/otel-lgtm
+    container_name: otel-lgtm-rinha
+    volumes:
+      - otel-lgtm-data:/data
+    ports:
+      - 3000:3000
+      - 4317:4317
+      - 4318:4318
 
   # pgadmin:
   #   image: dpage/pgadmin4
@@ -160,11 +168,13 @@ services:
   #     PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
   #     PGADMIN_DEFAULT_PASSWORD: "admin"
   #     PGADMIN_LISTEN_PORT: 5050
-
+  
 volumes:
-  db-rinha-data:
+  db-data:
     driver: local
-  prometheus-rinha-data:
+  prometheus-data:
     driver: local
-  influxdb-rinha-data:
+  influxdb-data:
     driver: local
+  otel-lgtm-data:
+    driver: local    

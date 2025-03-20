@@ -800,8 +800,8 @@
     "list": [
       {
         "current": {
-          "text": "webapi-2",
-          "value": "webapi-2"
+          "text": "webapi-2-dotnet",
+          "value": "webapi-2-dotnet"
         },
         "datasource": {
           "type": "prometheus",
