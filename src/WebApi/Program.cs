@@ -109,7 +109,11 @@ var clientes = new Dictionary<int, int>
 
 app.MapHealthChecks("/healthz");
 
+#if !EXTRAOPTIMIZE
 app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] ILogger<Program> logger, [FromServices] NpgsqlDataSource dataSource) =>
+#else
+app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] NpgsqlDataSource dataSource) =>
+#endif
 {
     if (!clientes.TryGetValue(id, out _))
         return Results.NotFound();
@@ -142,7 +146,11 @@ app.MapGet("/clientes/{id:int}/extrato", async (int id, [FromServices] ILogger<P
     }
 });
 
+#if !EXTRAOPTIMIZE
 app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] TransacaoDto transacao, [FromServices] ILogger<Program> logger, [FromServices] NpgsqlDataSource dataSource) =>
+#else
+app.MapPost("/clientes/{id:int}/transacoes", async (int id, [FromBody] TransacaoDto transacao, [FromServices] NpgsqlDataSource dataSource) =>
+#endif
 {
     if (!clientes.TryGetValue(id, out int limite))
         return Results.NotFound();
