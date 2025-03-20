@@ -205,7 +205,7 @@ static bool IsTransacaoValid(TransacaoDto transacao)
 [JsonSerializable(typeof(List<TransacaoDto>))]
 internal partial class SourceGenerationContext : JsonSerializerContext { }
 
-internal readonly record struct ClienteDto(int Id, int Limite, int Saldo);
-internal readonly record struct ExtratoDto(SaldoDto Saldo, List<TransacaoDto>? ultimas_transacoes);
-internal readonly record struct SaldoDto(int Total, int Limite, DateTime data_extrato);
-internal readonly record struct TransacaoDto(int Valor, string Tipo, string Descricao);
+internal record ClienteDto(int Id, int Limite, int Saldo);
+internal record ExtratoDto(SaldoDto Saldo, List<TransacaoDto>? ultimas_transacoes);
+internal record SaldoDto(int Total, int Limite, DateTime data_extrato);
+internal record TransacaoDto(int Valor, string Tipo, string Descricao);
